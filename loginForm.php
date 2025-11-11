@@ -14,11 +14,11 @@ include("header.php")
                 <p>Continue to the World</p>
             </div>
             
-            <form class="login-form" id="loginForm" novalidate action="checkLogin.php" method="post">
+            <form class="login-form" id="loginForm"  action="checkLogin.php" method="post">
                 <div class="form-group">
-                    <label for="email">Email address</label>
-                    <input type="email" id="email" name="userEmail" required autocomplete="email">
-                    <span class="error-message" id="emailError"></span>
+                    <label for="">Username</label>
+                    <input type="text"  name="userEmail" required >
+                    <!-- <span class="error-message" id="emailError"></span> -->
                 </div>
 
                 <div class="form-group">

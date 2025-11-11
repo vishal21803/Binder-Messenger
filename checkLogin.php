@@ -5,7 +5,7 @@
 
  include("connectdb.php");
 
- $rsCust=mysqli_query($con,"select * from user_info where uemail='$a' ");
+ $rsCust=mysqli_query($con,"select * from user_info where uname='$a' ");
 
  if(mysqli_num_rows($rsCust)==0){
     header("location:loginForm.php?regmsg=1");

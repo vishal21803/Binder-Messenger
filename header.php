@@ -29,7 +29,7 @@
       if(isset($_SESSION['uname'])){
  $uname= $_SESSION['uname'];
  include("connectdb.php");
-$rscheck=mysqli_query($con,"select * from user_info where uemail='$uname'");
+$rscheck=mysqli_query($con,"select * from user_info where uname='$uname'");
 while($row=mysqli_fetch_array($rscheck)){
     $utype=$row["utype"];
 }
