@@ -1,14 +1,18 @@
-<?php @session_start();
-
-
-$a=$_REQUEST["uid"];
-$uname=$_SESSION["uname"];
+<?php
+@session_start();
 include("connectdb.php");
-mysqli_query($con,"insert into request_info(uid,rstatus,rdate,remail) values('$a','requested',NOW(),'$uname' )");
 
-header("location:searchFriend.php?status=1");
+if (isset($_POST["uid"])) {
+    $uid = $_POST["uid"];
+    $uname = $_SESSION["uname"];
 
-
-
-
+    // Check if already exists
+    $check = mysqli_query($con, "SELECT * FROM request_info WHERE uid='$uid' AND remail='$uname'");
+    if (mysqli_num_rows($check) == 0) {
+        mysqli_query($con, "INSERT INTO request_info (uid, remail, rstatus, rdate) VALUES ('$uid', '$uname', 'requested', NOW())");
+        echo "requested";
+    } else {
+        echo "exists";
+    }
+}
 ?>

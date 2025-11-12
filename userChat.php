@@ -87,8 +87,13 @@ if (isset($_SESSION["uname"]) && $_SESSION["utype"] == 'user') {
 
     <?php if ($username): ?>
     <div class="input-area">
+        <button id="emojiBtn" title="Emoji">😀</button>
+
       <input type="text" placeholder="Type a message..." id="msgInput" />
       <button id="sendBtn">➤</button>
+
+        <div id="emojiPicker" class="emoji-picker"></div>
+
     </div>
     <?php endif; ?>
   </div>
@@ -102,7 +107,6 @@ function loadMessages() {
     .then(data => {
       const messagesDiv = document.getElementById("messages");
       messagesDiv.innerHTML = data;
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
     });
 }
 

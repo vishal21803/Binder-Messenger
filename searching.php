@@ -14,7 +14,23 @@ while($row=mysqli_fetch_array($rscheck)){
     echo("<div class='child'>");
     echo($name);
     echo($age);
-    echo("<a href='insertRequest.php?uid=$id'>Send Request</a>");
+
+    // 🔍 check request status for this specific user
+      $reqCheck = mysqli_query($con, "SELECT * FROM request_info 
+                                      WHERE remail='$uname' 
+                                      AND uid='$id'");
+
+      if (mysqli_num_rows($reqCheck) > 0) {
+          $row2 = mysqli_fetch_array($reqCheck);
+          if ($row2["rstatus"] == "requested") {
+              echo("<button class='reqBtn' data-uid='$id'>Requested</button>");
+          } elseif ($row2["rstatus"] == "accepted") {
+              echo("<button class='followingBtn' data-uid='$id'>Following</button>");
+          }
+      } else {
+              echo("<button class='followBtn' data-uid='$id' >Follow</button>");
+      }
+   
     echo("</div>");
 }
 }else {
@@ -24,3 +40,5 @@ while($row=mysqli_fetch_array($rscheck)){
 
     
     ?>
+
+  

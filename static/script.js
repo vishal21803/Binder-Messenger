@@ -130,3 +130,38 @@ class MinimalMusicLoginForm {
 document.addEventListener('DOMContentLoaded', () => {
     new MinimalMusicLoginForm();
 });
+
+
+
+
+
+
+const pickerContainer = document.getElementById('emojiPicker');
+const emojiBtn = document.getElementById('emojiBtn');
+
+const picker = new EmojiMart.Picker({
+  set: 'twitter',
+  theme: 'light',
+  emojiSize: 24,
+  perLine: 8,
+  previewPosition: 'none',
+  searchPosition: 'top',
+  onEmojiSelect: (emoji) => {
+    msgInput.value += emoji.native;
+    msgInput.focus();
+  },
+});
+
+pickerContainer.appendChild(picker);
+twemoji.parse(pickerContainer);
+
+pickerContainer.style.display = 'none';
+emojiBtn.addEventListener('click', () => {
+  pickerContainer.style.display = pickerContainer.style.display === 'none' ? 'block' : 'none';
+});
+document.addEventListener('click', (e) => {
+  if (!pickerContainer.contains(e.target) && e.target !== emojiBtn) {
+    pickerContainer.style.display = 'none';
+  }
+});
+

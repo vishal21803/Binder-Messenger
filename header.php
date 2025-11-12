@@ -9,10 +9,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emoji-mart@latest/css/emoji-mart.css" />
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <link rel="stylesheet" href="./bootstrap.min.css">
-
+     
     <link rel="stylesheet" href="static/style.css">
+
+    <script src="./jquery-3.7.1.min.js"></script>
 </head>
 <body>
  

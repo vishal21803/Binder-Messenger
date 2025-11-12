@@ -9,7 +9,7 @@ $rschat=mysqli_query($con,"select * from message_info where mkey='$key' order by
 
 while($row=mysqli_fetch_assoc($rschat)){
     $msg=$row["message"];
-    $time=$row["mtime"];
+    $time = date("h:i A", strtotime($row["mtime"]));
    if($row["msender"]==$user){
      $position="right";
    }

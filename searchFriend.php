@@ -50,6 +50,81 @@ function loadData(){
     document.getElementById("searchResult").innerHTML = "No results Found";
   }
 }
+
+
+
+$(document).on("click", ".followBtn", function() {
+    var btn = $(this);
+    var uid = btn.data("uid");
+
+    $.ajax({
+        url: "insertRequest.php",
+        type: "POST",
+        data: { uid: uid },
+        success: function(response) {
+            if (response.trim() === "requested") {
+                btn.text("Requested");
+                btn.prop("disabled", true);
+            } else if (response.trim() === "exists") {
+                btn.text("Following");
+                btn.prop("disabled", true);
+            } else {
+                btn.text("Error");
+            }
+        }
+    });
+});
+
+
+$(document).on("click", ".followingBtn", function() {
+    var btn = $(this);
+    var uid = btn.data("uid");
+
+    $.ajax({
+        url: "unfollow.php",
+        type: "POST",
+        data: { uid: uid },
+        success: function(response) {
+            if (response.trim() === "deleted") {
+                btn.text("Follow");
+                btn.prop("disabled", false);
+                btn.removeClass("followingBtn").addClass("followBtn");
+
+            } else if (response.trim() === "notexists") {
+                btn.text("requested");
+                btn.prop("disabled", true);
+            } else {
+                btn.text("Error");
+            }
+        }
+    });
+});
+
+
+
+$(document).on("click", ".reqBtn", function() {
+    var btn = $(this);
+    var uid = btn.data("uid");
+
+    $.ajax({
+        url: "reqBack.php",
+        type: "POST",
+        data: { uid: uid },
+        success: function(response) {
+            if (response.trim() === "reqback") {
+                btn.text("Follow");
+                btn.prop("disabled", false);
+                btn.removeClass("reqBtn").addClass("followBtn");
+
+            } else if (response.trim() === "notexists") {
+                btn.text("requested");
+                btn.prop("disabled", true);
+            } else {
+                btn.text("Error");
+            }
+        }
+    });
+});
 </script>
 
 <?php
