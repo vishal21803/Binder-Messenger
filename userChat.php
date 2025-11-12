@@ -6,39 +6,68 @@ if (isset($_SESSION["uname"]) && $_SESSION["utype"] == 'user') {
 
     $uname = $_SESSION["uname"];
 
-    // Optional parameters check
-    // $username = isset($_REQUEST["name"]) ? $_REQUEST["name"] : null;
+    // When user clicks a contact (from contact list)
+    $usname = isset($_REQUEST["name"]) ? $_REQUEST["name"] : null;
 
+    // If a new chat is being initiated
+    if ($usname && $usname !== $uname) {
+
+        // ✅ Create a shared unique key for both users
+        $chatKey = md5(min($uname, $usname) . "_" . max($uname, $usname));
+
+        // ✅ Check if a chat already exists (in either direction)
+        $checkExists = mysqli_query($con, "
+            SELECT * FROM chat_info 
+            WHERE ckey='$chatKey' LIMIT 1
+        ");
+
+        // ✅ If no chat exists, insert one record (shared for both)
+        if (mysqli_num_rows($checkExists) == 0) {
+            mysqli_query($con, "
+                INSERT INTO chat_info(cswitch, cdate, cuser, you, ckey) 
+                VALUES (1, NOW(), '$uname', '$usname', '$chatKey')
+            ");
+        }
+
+        // ✅ Now fetch or reuse that chat
+        $res = mysqli_query($con, "SELECT * FROM chat_info WHERE ckey='$chatKey' LIMIT 1");
+        $chatData = mysqli_fetch_assoc($res);
+        $_SESSION["chat_id"] = $chatData["cid"];
+        $_SESSION["ckey"] = $chatData["ckey"];
+        $_SESSION["chat_user"] = $usname;
+
+        // Redirect to self (so refresh works cleanly)
+        header("Location: userChat.php");
+        exit();
+    }
+
+    // Load active session info
     $username = isset($_SESSION["chat_user"]) ? $_SESSION["chat_user"] : null;
     $chat_id = isset($_SESSION["chat_id"]) ? $_SESSION["chat_id"] : null;
     $ckey = isset($_SESSION["ckey"]) ? $_SESSION["ckey"] : null;
 
-    // Insert new chat only if username is provided and not duplicate
-    if ($username) {
-      $chatKey = md5(min($uname, $username) . "_" . max($uname, $username));
-        $checkExists = mysqli_query($con, "SELECT * FROM chat_info WHERE cuser='$username' AND you='$uname' ");
-        if (mysqli_num_rows($checkExists) == 0) {
-            mysqli_query($con, "INSERT INTO chat_info(cswitch, cdate, cuser, you,ckey) VALUES (1, NOW(), '$username', '$uname','$chatKey')");
-        }
-    }
-
-    // Fetch chat contacts
-    $rscheck = mysqli_query($con, "SELECT  * FROM chat_info WHERE you='$uname' AND cswitch=1");
+    // ✅ Fetch all contacts related to current user
+    $rscheck = mysqli_query($con, "
+        SELECT * FROM chat_info 
+        WHERE (you='$uname' OR cuser='$uname') 
+        AND cswitch=1
+    ");
 ?>
-
 <main>
 <div class="chat-container">
+  <!-- Sidebar -->
   <div class="sidebar">
     <h3>Contacts</h3>
     <div id="userList">
       <?php
       if (mysqli_num_rows($rscheck) > 0) {
           while ($row = mysqli_fetch_assoc($rscheck)) {
-            $a=$row["cid"];
-            $partner = ($row["cuser"] == $uname) ? $row["you"] : $row["cuser"];
+              // Figure out the partner's name
+              $partner = ($row["cuser"] == $uname) ? $row["you"] : $row["cuser"];
+              $a = $row["cid"];
               $activeClass = ($partner == $username) ? "active-user" : "";
               echo "<div class='user $activeClass'>";
-              echo ("<a href='insertSession.php?chat=$a' style='display:block;text-decoration:none;color:white'>".$row["cuser"]."</a>");
+              echo "<a href='userChat.php?name=$partner' style='display:block;text-decoration:none;color:white'>$partner</a>";
               echo "</div>";
           }
       } else {
@@ -48,57 +77,53 @@ if (isset($_SESSION["uname"]) && $_SESSION["utype"] == 'user') {
     </div>
   </div>
 
+  <!-- Chat Box -->
   <div class="chat-box">
-    <div class="chat-header" >
+    <div class="chat-header">
       <?php echo $username ? "Chat with " . htmlspecialchars($username) : "Select a contact"; ?>
     </div>
 
-    <div id="messages">
-      <?php
-      // Example static messages — later connect this to message table
-      // echo "<div class='message left'>Hey! How are you?<small>10:20 AM</small></div>";
-      // echo "<div class='message right'>I'm fine, what about you?<small>10:22 AM</small></div>";
-      ?>
-    </div>
+    <div id="messages"></div>
 
+    <?php if ($username): ?>
     <div class="input-area">
       <input type="text" placeholder="Type a message..." id="msgInput" />
       <button id="sendBtn">➤</button>
     </div>
+    <?php endif; ?>
   </div>
 </div>
 </main>
 
-
-
-
 <script>
-  function loadMessages() {
+function loadMessages() {
   fetch("displayMessage.php")
     .then(res => res.text())
     .then(data => {
       const messagesDiv = document.getElementById("messages");
       messagesDiv.innerHTML = data;
-    
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
     });
 }
-setInterval(loadMessages, 1000); // every 2 sec
+
+setInterval(loadMessages, 1000);
 loadMessages();
-  
-document.getElementById("sendBtn").addEventListener("click",function () {
-    const msg=document.getElementById("msgInput").value.trim();
-    if(msg !== ""){
-      fetch("insertMessage.php",{
-        method:"POST",
-        headers:{"Content-Type": "application/x-www-form-urlencoded"},
-        body:"message=" + encodeURIComponent(msg)
-      }).then(()=>{
-        document.getElementById("msgInput").value= "";
-        loadMessages();
-      });
-    }
-  });
+
+document.getElementById("sendBtn")?.addEventListener("click", function() {
+  const msg = document.getElementById("msgInput").value.trim();
+  if (msg !== "") {
+    fetch("insertMessage.php", {
+      method: "POST",
+      headers: {"Content-Type": "application/x-www-form-urlencoded"},
+      body: "message=" + encodeURIComponent(msg)
+    }).then(() => {
+      document.getElementById("msgInput").value = "";
+      loadMessages();
+    });
+  }
+});
 </script>
+
 <?php
     include("footer.php");
 } else {
