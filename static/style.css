@@ -645,5 +645,16 @@ body{
     width: 280px;
     height: 250px;
     border: 3px solid black;
-    ma
+    
+}
+
+.user {
+  padding: 10px;
+  background: #710755;
+  margin-bottom: 6px;
+}
+.user.active-user {
+  background: #0f8;
+  color: black;
+  font-weight: bold;
 }

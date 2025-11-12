@@ -7,7 +7,11 @@ if (isset($_SESSION["uname"]) && $_SESSION["utype"] == 'user') {
     $uname = $_SESSION["uname"];
 
     // Optional parameters check
-    $username = isset($_REQUEST["name"]) ? $_REQUEST["name"] : null;
+    // $username = isset($_REQUEST["name"]) ? $_REQUEST["name"] : null;
+
+    $username = isset($_SESSION["chat_user"]) ? $_SESSION["chat_user"] : null;
+    $chat_id = isset($_SESSION["chat_id"]) ? $_SESSION["chat_id"] : null;
+    $ckey = isset($_SESSION["ckey"]) ? $_SESSION["ckey"] : null;
 
     // Insert new chat only if username is provided and not duplicate
     if ($username) {
@@ -31,8 +35,9 @@ if (isset($_SESSION["uname"]) && $_SESSION["utype"] == 'user') {
       if (mysqli_num_rows($rscheck) > 0) {
           while ($row = mysqli_fetch_assoc($rscheck)) {
             $a=$row["cid"];
-           
-              echo "<div class='user'>";
+            $partner = ($row["cuser"] == $uname) ? $row["you"] : $row["cuser"];
+              $activeClass = ($partner == $username) ? "active-user" : "";
+              echo "<div class='user $activeClass'>";
               echo ("<a href='insertSession.php?chat=$a' style='display:block;text-decoration:none;color:white'>".$row["cuser"]."</a>");
               echo "</div>";
           }
