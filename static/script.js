@@ -165,3 +165,103 @@ document.addEventListener('click', (e) => {
   }
 });
 
+
+document.addEventListener("click", function (e) {
+  if (e.target.classList.contains("menu-btn")) {
+    const menu = e.target.nextElementSibling;
+
+    // Close other open menus
+    document.querySelectorAll(".dropdown-menu").forEach(m => {
+      if (m !== menu) m.classList.remove("show");
+    });
+
+    // Toggle clicked menu
+    menu.classList.toggle("show");
+  } 
+  else if (!e.target.closest(".menu-container")) {
+    document.querySelectorAll(".dropdown-menu").forEach(m => m.classList.remove("show"));
+  }
+});
+
+
+
+
+$(document).on("click", ".delmsg", function() {
+    var btn = $(this);
+    var mid = btn.data("mid");
+
+    $.ajax({
+        url: "deleteMessage.php",
+        type: "POST",
+        data: { mid: mid },
+        success: function(response) {
+            if (response.trim() === "delete") {
+                
+
+            } else if (response.trim() === "notexists") {
+                btn.text("requested");
+                btn.prop("disabled", true);
+            } else {
+                btn.text("Error");
+            }
+        }
+    });
+});
+
+
+
+$(document).on("click", ".demsg", function() {
+    var btn = $(this);
+    var mid = btn.data("mid");
+
+    $.ajax({
+        url: "demsg.php",
+        type: "POST",
+        data: { mid: mid },
+        success: function(response) {
+            if (response.trim() === "deleteme") {
+                
+
+            } else if (response.trim() === "notexists") {
+                btn.text("requested");
+                btn.prop("disabled", true);
+            } else {
+                btn.text("Error");
+            }
+        }
+    });
+});
+
+
+$(document).on("click", ".delrec", function() {
+    var btn = $(this);
+    var mid = btn.data("mid");
+
+    $.ajax({
+        url: "delrec.php",
+        type: "POST",
+        data: { mid: mid },
+        success: function(response) {
+            if (response.trim() === "deleterec") {
+                
+
+            } else if (response.trim() === "notexists") {
+                btn.text("requested");
+                btn.prop("disabled", true);
+            } else {
+                btn.text("Error");
+            }
+        }
+    });
+});
+
+// 🔹 Copy message text to clipboard
+$(document).on("click", ".copymsg", function(e) {
+  e.preventDefault(); // stop link behavior
+  const text = $(this).data("message");
+navigator.clipboard.writeText(text).then(() => {
+  const toast = $("<span class='toast-msg'>Copied!</span>");
+  $("body").append(toast);
+  setTimeout(() => toast.fadeOut(300, () => toast.remove()), 800);
+});
+});

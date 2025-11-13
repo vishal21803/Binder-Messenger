@@ -8,6 +8,7 @@ if (isset($_SESSION["uname"]) && $_SESSION["utype"] == 'user') {
 
     // When user clicks a contact (from contact list)
     $usname = isset($_REQUEST["name"]) ? $_REQUEST["name"] : null;
+   
 
     // If a new chat is being initiated
     if ($usname && $usname !== $uname) {
@@ -52,6 +53,8 @@ if (isset($_SESSION["uname"]) && $_SESSION["utype"] == 'user') {
         WHERE (you='$uname' OR cuser='$uname') 
         AND cswitch=1
     ");
+
+   
 ?>
 <main>
 <div class="chat-container">
@@ -64,10 +67,24 @@ if (isset($_SESSION["uname"]) && $_SESSION["utype"] == 'user') {
           while ($row = mysqli_fetch_assoc($rscheck)) {
               // Figure out the partner's name
               $partner = ($row["cuser"] == $uname) ? $row["you"] : $row["cuser"];
+               $_SESSION["m"]=$partner;
+              $b=$_SESSION["m"];
               $a = $row["cid"];
+
+               $q = "
+  SELECT COUNT(*) AS unread_count 
+  FROM message_info 
+  WHERE mreceiver = '$uname' 
+    AND msender = '$b' 
+    AND is_read = 0
+";
+$res = mysqli_query($con, $q);
+$row = mysqli_fetch_assoc($res);
+$read = $row['unread_count'];
+              
               $activeClass = ($partner == $username) ? "active-user" : "";
               echo "<div class='user $activeClass'>";
-              echo "<a href='userChat.php?name=$partner' style='display:block;text-decoration:none;color:white'>$partner</a>";
+              echo "<a href='userChat.php?name=$partner' style='display:block;text-decoration:none;color:white'>$partner $read</a>";
               echo "</div>";
           }
       } else {
@@ -81,9 +98,12 @@ if (isset($_SESSION["uname"]) && $_SESSION["utype"] == 'user') {
   <div class="chat-box">
     <div class="chat-header">
       <?php echo $username ? "Chat with " . htmlspecialchars($username) : "Select a contact"; ?>
+      <button id="clearbtn"><i class="bi bi-trash"></i></button>
     </div>
 
-    <div id="messages"></div>
+    <div id="messages">
+      
+    </div>
 
     <?php if ($username): ?>
     <div class="input-area">
@@ -106,26 +126,71 @@ function loadMessages() {
     .then(res => res.text())
     .then(data => {
       const messagesDiv = document.getElementById("messages");
-      messagesDiv.innerHTML = data;
-    });
+
+      // ✅ Update only if content changed
+      if (messagesDiv.dataset.lastHtml !== data) {
+        messagesDiv.innerHTML = data;
+        messagesDiv.dataset.lastHtml = data;
+      }
+    })
+    .catch(err => console.error("Error loading messages:", err));
 }
 
+// ✅ Call every 1.5–2 sec (1000 ms is too fast)
 setInterval(loadMessages, 1000);
 loadMessages();
 
-document.getElementById("sendBtn")?.addEventListener("click", function() {
-  const msg = document.getElementById("msgInput").value.trim();
+
+const msgInput = document.getElementById("msgInput");
+const sendBtn = document.getElementById("sendBtn");
+
+// ✅ Send message function
+function sendMessage() {
+  const msg = msgInput.value.trim();
   if (msg !== "") {
     fetch("insertMessage.php", {
       method: "POST",
-      headers: {"Content-Type": "application/x-www-form-urlencoded"},
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: "message=" + encodeURIComponent(msg)
-    }).then(() => {
-      document.getElementById("msgInput").value = "";
+    })
+    .then(() => {
+      msgInput.value = "";
       loadMessages();
     });
   }
+}
+
+// ✅ Click on send button
+sendBtn?.addEventListener("click", sendMessage);
+
+// ✅ Press Enter key
+msgInput?.addEventListener("keypress", function(e) {
+  if (e.key === "Enter") {
+    e.preventDefault(); // stop newline
+    sendMessage();
+  }
 });
+
+
+document.addEventListener("DOMContentLoaded", function() {
+  const clearBtn = document.getElementById("clearbtn");
+  if (clearBtn) {
+    clearBtn.addEventListener("click", function() {
+      if (confirm("Do you really want to clear this chat?")) {
+        fetch("clearChat.php")
+        .then(res => res.text())
+        .then(data => {
+          if (data.trim() === "cleared") {
+            document.getElementById("messages").innerHTML = "";
+            alert("Chat cleared for you!");
+          }
+        });
+      }
+    });
+  }
+});
+
+
 </script>
 
 <?php
