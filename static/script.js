@@ -265,3 +265,56 @@ navigator.clipboard.writeText(text).then(() => {
   setTimeout(() => toast.fadeOut(300, () => toast.remove()), 800);
 });
 });
+
+
+
+
+function updateSeenStatus() {
+    const seen = document.querySelector("#seenIndicator");
+    if (!seen) return;
+
+    if (seen.dataset.readtime) {
+        // seen case
+        const rtime = new Date(seen.dataset.readtime).getTime();
+        const diff = (Date.now() - rtime) / 1000;
+
+        if (diff < 60) seen.textContent = "Seen just now";
+        else if (diff < 3600) seen.textContent = "Seen " + Math.floor(diff/60) + " min ago";
+        else if (diff < 86400) seen.textContent = "Seen " + Math.floor(diff/3600) + " hrs ago";
+        else if (diff < 172800) seen.textContent = "Seen yesterday";
+        else seen.textContent = "Seen " + Math.floor(diff/86400) + " days ago";
+    }
+    else if (seen.dataset.senttime) {
+      
+ seen.textContent = "Messsage Sent ";
+       
+}
+}
+setInterval(updateSeenStatus, 10);
+
+
+function checkBlockStatus() {
+  fetch("displayMessage.php")
+    .then(res => res.text())
+    .then(html => {
+      if (html.includes("You blocked this user") ||
+          html.includes("This user has blocked you")) {
+
+        document.getElementById("msgInput").disabled = true;
+        document.getElementById("sendBtn").disabled = true;
+
+      } else {
+        document.getElementById("msgInput").disabled = false;
+        document.getElementById("sendBtn").disabled = false;
+      }
+    });
+}
+
+setInterval(checkBlockStatus, 1000);
+
+
+
+
+
+
+

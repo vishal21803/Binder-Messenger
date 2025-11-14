@@ -9,6 +9,9 @@ if (isset($_SESSION["uname"]) && $_SESSION["utype"] == 'user') {
     // When user clicks a contact (from contact list)
     $usname = isset($_REQUEST["name"]) ? $_REQUEST["name"] : null;
    
+     mysqli_query($con,"update message_info set is_read=1 ,read_time=NOW() where mreceiver = '$uname' 
+    AND msender = '$usname' 
+    AND is_read = 0");
 
     // If a new chat is being initiated
     if ($usname && $usname !== $uname) {
@@ -48,11 +51,19 @@ if (isset($_SESSION["uname"]) && $_SESSION["utype"] == 'user') {
     $ckey = isset($_SESSION["ckey"]) ? $_SESSION["ckey"] : null;
 
     // ✅ Fetch all contacts related to current user
-    $rscheck = mysqli_query($con, "
-        SELECT * FROM chat_info 
-        WHERE (you='$uname' OR cuser='$uname') 
-        AND cswitch=1
-    ");
+   $rscheck = mysqli_query($con, "
+  SELECT
+    CASE WHEN c.cuser = '$uname' THEN c.you ELSE c.cuser END AS partner,
+    MAX(m.mtime) AS last_msg_time,
+    c.cid, c.ckey,c.cuser,c.you
+  FROM chat_info c
+  LEFT JOIN message_info m ON m.mkey = c.ckey
+  WHERE '$uname' IN (c.cuser, c.you)
+  GROUP BY c.cid, partner, c.ckey
+  ORDER BY last_msg_time DESC
+") or die("SQL error: " . mysqli_error($con));
+
+
 
    
 ?>
@@ -76,7 +87,7 @@ if (isset($_SESSION["uname"]) && $_SESSION["utype"] == 'user') {
   FROM message_info 
   WHERE mreceiver = '$uname' 
     AND msender = '$b' 
-    AND is_read = 0
+    AND is_read = 0 
 ";
 $res = mysqli_query($con, $q);
 $row = mysqli_fetch_assoc($res);
@@ -84,12 +95,20 @@ $read = $row['unread_count'];
               
               $activeClass = ($partner == $username) ? "active-user" : "";
               echo "<div class='user $activeClass'>";
-              echo "<a href='userChat.php?name=$partner' style='display:block;text-decoration:none;color:white'>$partner $read</a>";
+              echo "<a href='userChat.php?name=$partner' style='display:block;text-decoration:none;color:white'>$partner</a>";
+              if($read>0){
+                echo("<span class='badge'>$read</span>");
+              }
+             
               echo "</div>";
           }
       } else {
           echo "<p>No active chats yet.</p>";
       }
+      
+
+    
+
       ?>
     </div>
   </div>
@@ -99,6 +118,9 @@ $read = $row['unread_count'];
     <div class="chat-header">
       <?php echo $username ? "Chat with " . htmlspecialchars($username) : "Select a contact"; ?>
       <button id="clearbtn"><i class="bi bi-trash"></i></button>
+      <button id="blockbtn"> <i class="bi bi-slash-circle"></i> </button>
+      <button id="unblockbtn"> <i class="bi bi-check-circle"></i> </button>
+      
     </div>
 
     <div id="messages">
@@ -155,10 +177,19 @@ function sendMessage() {
     })
     .then(() => {
       msgInput.value = "";
+            removeSeenText();   // 🟢 NEW LINE — hides seen immediately
+
       loadMessages();
     });
   }
 }
+
+function removeSeenText() {
+  document.querySelectorAll(".seen-time").forEach(el => {
+    el.innerText = "";   // remove seen text
+  });
+}
+
 
 // ✅ Click on send button
 sendBtn?.addEventListener("click", sendMessage);
@@ -189,6 +220,49 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 });
+
+
+document.addEventListener("DOMContentLoaded", function() {
+  const blockBtn = document.getElementById("blockbtn");  // FIXED NAME
+  if (blockBtn) {
+    blockBtn.addEventListener("click", function() {
+      if (confirm("Do you really want to block this chat?")) {
+        fetch("insertBlocked.php")
+        .then(res => res.text())
+        .then(data => {
+          if (data.trim() === "blocked") {
+            document.getElementById("messages").innerHTML = "You blocked this user";
+            document.getElementById("msgInput").disabled = true;
+            document.getElementById("sendBtn").disabled = true;
+          }
+        });
+      }
+    });
+  }
+});
+
+
+document.addEventListener("DOMContentLoaded", function() {
+  const unblockBtn = document.getElementById("unblockbtn");  // FIXED NAME
+  if (unblockBtn) {
+    unblockBtn.addEventListener("click", function() {
+      if (confirm("Do you really want to unblock this chat?")) {
+        fetch("deleteBlocked.php")
+        .then(res => res.text())
+        .then(data => {
+          if (data.trim() === "unblocked") {
+            document.getElementById("msgInput").disabled = false;
+            document.getElementById("sendBtn").disabled = false;
+          }
+        });
+      }
+    });
+  }
+});
+
+
+
+
 
 
 </script>
