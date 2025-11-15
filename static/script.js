@@ -293,28 +293,150 @@ function updateSeenStatus() {
 setInterval(updateSeenStatus, 10);
 
 
-function checkBlockStatus() {
-  fetch("displayMessage.php")
-    .then(res => res.text())
-    .then(html => {
-      if (html.includes("You blocked this user") ||
-          html.includes("This user has blocked you")) {
+document.getElementById("blockbtn").onclick = function () {
+    fetch("toggleBlock.php")
+        .then(res => res.text())
+        .then(result => {
 
-        document.getElementById("msgInput").disabled = true;
-        document.getElementById("sendBtn").disabled = true;
+            if (result.trim() === "blocked") {
+                document.getElementById("blockbtn").textContent = "Unblock";
+                document.getElementById("msgInput").disabled = true;
+                document.getElementById("msgInput").placeholder = "You blocked this user";
+            }
+            else {
+                document.getElementById("blockbtn").textContent = "Block";
+                document.getElementById("msgInput").disabled = false;
+                document.getElementById("msgInput").placeholder = "Type a message...";
+            }
+        });
+};
 
-      } else {
-        document.getElementById("msgInput").disabled = false;
-        document.getElementById("sendBtn").disabled = false;
-      }
+
+// ---------- GIF PICKER ----------
+const gifBtn = document.getElementById("gifBtn");
+const gifBox = document.getElementById("gifBox");
+const gifSearch = document.getElementById("gifSearch");
+const gifResults = document.getElementById("gifResults");
+
+const GIPHY_KEY = "KSW18RYWclwdogq0YHWg4Pcoopw4clkk";  // <<--- Replace
+
+// Toggle GIF Box
+gifBtn.addEventListener("click", () => {
+    gifBox.style.display = gifBox.style.display === "none" ? "block" : "none";
+    gifSearch.focus();
+});
+
+// Hide when clicking outside
+document.addEventListener("click", (e) => {
+    if (!gifBox.contains(e.target) && e.target !== gifBtn) {
+        gifBox.style.display = "none";
+    }
+});
+
+// Search GIFs
+gifSearch.addEventListener("keyup", async () => {
+    let q = gifSearch.value.trim();
+    if (q.length < 2) return;
+
+    let url = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_KEY}&limit=20&q=${encodeURIComponent(q)}`;
+
+    let res = await fetch(url);
+    let data = await res.json();
+
+    gifResults.innerHTML = "";
+
+    data.data.forEach(gif => {
+        let img = gif.images.fixed_width.url;
+        gifResults.innerHTML += `
+            <div class="gif-item">
+                <img src="${img}" data-gif="${img}">
+            </div>
+        `;
+    });
+});
+
+// When user clicks a GIF → send as message
+gifResults.addEventListener("click", (e) => {
+    if (e.target.tagName === "IMG") {
+        let gifUrl = e.target.dataset.gif;
+        sendGifMessage(gifUrl);
+        gifBox.style.display = "none";
+    }
+});
+
+// This will send GIF as message (modify for your app)
+function sendGifMessage(gifUrl) {
+    fetch("insertMessage.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "file=" + encodeURIComponent(gifUrl)
+    }).then(() => {
+        loadMessages();
     });
 }
 
-setInterval(checkBlockStatus, 1000);
 
 
 
+// ---------- STICKER PICKER ----------
+const stickerBtn = document.getElementById("stickerBtn");
+const stickerBox = document.getElementById("stickerBox");
+const stickerSearch = document.getElementById("stickerSearch");
+const stickerResults = document.getElementById("stickerResults");
 
 
+// Toggle sticker box
+stickerBtn.addEventListener("click", () => {
+  stickerBox.style.display = stickerBox.style.display === "none" ? "block" : "none";
+  stickerSearch.focus();
+});
 
+// Close sticker box on body click
+document.addEventListener("click", (e) => {
+  if (!stickerBox.contains(e.target) && e.target !== stickerBtn) {
+    stickerBox.style.display = "none";
+  }
+});
 
+// Perform search when typing
+stickerSearch.addEventListener("keyup", async () => {
+  let q = stickerSearch.value.trim();
+  if (q.length < 2) return;
+
+  let url = `https://api.giphy.com/v1/stickers/search?api_key=${GIPHY_KEY}&limit=20&q=${encodeURIComponent(q)}`;
+
+  let res = await fetch(url);
+  let data = await res.json();
+
+  stickerResults.innerHTML = "";
+
+  data.data.forEach(st => {
+    let img = st.images.fixed_width.url;
+
+    stickerResults.innerHTML += `
+      <div class="sticker-item">
+        <img src="${img}" data-sticker="${img}">
+      </div>
+    `;
+  });
+});
+
+// When user clicks a sticker → send as file message
+stickerResults.addEventListener("click", (e) => {
+  if (e.target.tagName === "IMG") {
+    let stickerUrl = e.target.dataset.sticker;
+    sendStickerMessage(stickerUrl);
+    stickerBox.style.display = "none";
+  }
+});
+
+// Send sticker as message
+function sendStickerMessage(stickerUrl) {
+  fetch("insertMessage.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "file=" + encodeURIComponent(stickerUrl)
+  }).then(() => {
+    loadMessages();
+  });
+}

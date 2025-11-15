@@ -2,107 +2,123 @@
 @session_start();
 include("connectdb.php");
 
+/* ============================================================
+   SAFETY CHECK → USER MUST HAVE SELECTED A CHAT
+============================================================ */
+if (
+    !isset($_SESSION["chat_id"]) ||
+    !isset($_SESSION["ckey"]) ||
+    !isset($_SESSION["uname"]) ||
+    !isset($_SESSION["chat_user"])
+) {
+    exit;
+}
 
+$chat_id = $_SESSION["chat_id"];
+$user    = $_SESSION["uname"];   // logged user
+$partner = $_SESSION["chat_user"];
+$key     = $_SESSION["ckey"];
 
+/* ============================================================
+   LOAD ALL MESSAGES
+============================================================ */
+$rschat = mysqli_query($con, "
+    SELECT * FROM message_info
+    WHERE mkey='$key'
+    AND (
+        (msender='$user' AND clear_by_sender=0) OR
+        (mreceiver='$user' AND clear_by_receiver=0)
+    )
+    ORDER BY mtime
+");
 
+/* ============================================================
+   PRINT ALL MESSAGES
+============================================================ */
+while ($row = mysqli_fetch_assoc($rschat)) {
 
-if (isset($_SESSION["chat_id"]) && isset($_SESSION["ckey"])) {
+    $mid  = $row["mid"];
+    $msg  =($row["message"]);
+    $file = $row["file"];
+    $time = date("h:i A", strtotime($row["mtime"]));
 
-    $chat_id = $_SESSION["chat_id"];
-    $user = $_SESSION["uname"];          // YOU
-    $partner = $_SESSION["chat_user"];   // OTHER USER
-    $key = $_SESSION["ckey"];
+    $isMe = ($row["msender"] == $user);
 
-    // ---------------------------------------------
-    // STEP 1: GET THE LAST MESSAGE YOU SENT THAT WAS READ
-    // ---------------------------------------------
-   
+    echo "<div class='message ".($isMe ? "right" : "left")."'>";
 
+    echo "<div class='msg-wrapper'>";
 
-    // ---------------------------------------------
-    // STEP 2: LOAD ALL MESSAGES
-    // ---------------------------------------------
-    $rschat = mysqli_query($con, "
-        SELECT * FROM message_info
-        WHERE mkey='$key'
-        AND ((clear_by_sender=0 AND msender='$user')
-            OR (clear_by_receiver=0 AND mreceiver='$user'))
-        ORDER BY mtime
-    ");
+    /* ------------------------------
+       TEXT MESSAGE
+    --------------------------------*/
+   if (!empty($msg)) {
+    echo "<div class='msg-content'>$msg</div>";
+}
 
-    while ($row = mysqli_fetch_assoc($rschat)) {
-        $mid = $row["mid"];
-        $msg = htmlspecialchars($row["message"]);
-        $time = date("h:i A", strtotime($row["mtime"]));
+    /* ------------------------------
+       FILE MESSAGE
+    --------------------------------*/
+  /* ------------------------------
+   FILE MESSAGE (IMAGE / GIF / STICKER / VIDEO / AUDIO / DOC)
+--------------------------------*/
+if (!empty($file)) {
 
-        // $sentTime = timeAgo($row["mtime"]);
+    // check extension
+    $ext = strtolower(pathinfo(parse_url($file, PHP_URL_PATH), PATHINFO_EXTENSION));
 
-        // ---------------------------
-        // SENDER MESSAGE (RIGHT SIDE)
-        // ---------------------------
-        if ($row["msender"] == $user) {
+    // IMAGE / GIF / WEBP / Sticker URL
+    if (in_array($ext, ["jpg","jpeg","png","gif","webp"])) {
+        echo "<img src='$file' class='chat-img'>";
+    }
 
-            echo "
-            <div class='message right'>
-                <div class='msg-wrapper'>
-                    <div class='msg-content'>$msg</div>
+    // VIDEO
+    elseif (in_array($ext, ["mp4","webm","mkv"])) {
+        echo "<video controls class='chat-video'><source src='$file'></video>";
+    }
 
-                    <div class='menu-container'>
-                        <button class='menu-btn'>⋮</button>
-                        <div class='dropdown-menu'>
-                            <a class='delmsg' data-mid='$mid'>Delete for Everyone</a>
-                            <a class='demsg' data-mid='$mid'>Delete for Me</a>
-                            <a href='#' class='copymsg' data-message=\"$msg\">Copy</a>
-                        </div>
-                    </div>
-                </div>
-                <small class='time'>$time</small>
-            ";
+    // AUDIO
+    elseif (in_array($ext, ["mp3","wav","aac","m4a"])) {
+        echo "<audio controls class='chat-audio'><source src='$file'></audio>";
+    }
 
-
-
-
-            echo "</div>";
-
-        }
-          
-        // ---------------------------
-        // RECEIVER MESSAGE (LEFT)
-        // ---------------------------
-        else {
-
-            echo "
-            <div class='message left'>
-                <div class='msg-wrapper'>
-                    <div class='msg-content'>$msg</div>
-
-                    <div class='menu-container'>
-                        <button class='menu-btn'>⋮</button>
-                        <div class='dropdown-menu'>
-                            <a class='delrec' data-mid='$mid'>Delete</a>
-                            <a href='#' class='copymsg' data-message=\"$msg\">Copy</a>
-                        </div>
-                    </div>
-                </div>
-                <small class='time'>$time</small>
-            </div>
-            ";
-        }
+    // OTHER FILES → download
+    else {
+        echo "<a href='$file' download class='file-download'>📄 Download File</a>";
     }
 }
 
-// --- SAFE CHECK BEFORE USING SESSION ---
 
-if (!isset($_SESSION["ckey"]) || !isset($_SESSION["uname"]) || !isset($_SESSION["chat_user"])) {
-    return; // Stop execution, user hasn’t selected chat yet
+
+    /* ------------------------------
+       3-dot menu
+    --------------------------------*/
+    echo "<div class='menu-container'>
+            <button class='menu-btn'>⋮</button>
+            <div class='dropdown-menu'>";
+    
+    if ($isMe) {
+        echo "<a class='delmsg' data-mid='$mid'>Delete for Everyone</a>
+              <a class='demsg' data-mid='$mid'>Delete for Me</a>";
+    } else {
+        echo "<a class='delrec' data-mid='$mid'>Delete</a>";
+    }
+
+    echo "<a href='#' class='copymsg' data-message=\"$msg\">Copy</a>
+        </div>
+    </div>";
+
+    echo "</div>"; // msg-wrapper
+    echo "<small class='time'>$time</small>";
+    echo "</div>"; // message
 }
 
-$key     = $_SESSION["ckey"];
-$user    = $_SESSION["uname"];
-$partner = $_SESSION["chat_user"];
-// Get last message of the chat
+/* ============================================================
+   SHOW SEEN / SENT ONLY FOR LAST MESSAGE YOU SENT
+============================================================ */
+
+// get last message
 $lastMsgQ = mysqli_query($con, "
-    SELECT mid, msender, mreceiver, is_read, read_time, mtime 
+    SELECT mid, msender, mreceiver, is_read, read_time, mtime
     FROM message_info
     WHERE mkey='$key'
     ORDER BY mtime DESC
@@ -111,30 +127,25 @@ $lastMsgQ = mysqli_query($con, "
 
 $lastMsg = mysqli_fetch_assoc($lastMsgQ);
 
-// 🔥 If there are NO messages in chat → stop safely
-if (!$lastMsg) {
-    return; 
-}
+// no messages
+if (!$lastMsg) exit;
 
-// If YOU did NOT send the last message → do not show anything
-if ($lastMsg["msender"] !== $user) {
-    return;
-}
+// if the last message is NOT yours → no seen/sent needed
+if ($lastMsg["msender"] !== $user) exit;
 
-// YOU sent the last message → Show proper Seen/Sent status
+/* ------------------------------------------------------------
+   If message is READ
+------------------------------------------------------------ */
 if ($lastMsg["is_read"] == 1) {
-
-    $seenTime = $lastMsg["read_time"];
-    echo "<span id='seenIndicator' data-readtime=\"$seenTime\"></span>";
-
-} else {
-
-    $sentTime = $lastMsg["mtime"];
-    echo "<span id='seenIndicator' data-senttime=\"$sentTime\"></span>";
-
+    echo "<span id='seenIndicator' 
+            data-readtime='{$lastMsg["read_time"]}'></span>";
+}
+/* ------------------------------------------------------------
+   If message is just SENT
+------------------------------------------------------------ */
+else {
+    echo "<span id='seenIndicator'
+            data-senttime='{$lastMsg["mtime"]}'></span>";
 }
 
-
-include("footer.php");
 ?>
-

@@ -63,9 +63,33 @@ if (isset($_SESSION["uname"]) && $_SESSION["utype"] == 'user') {
   ORDER BY last_msg_time DESC
 ") or die("SQL error: " . mysqli_error($con));
 
+if(isset($_SESSION["chat_user"])){
+$partner = $_SESSION["chat_user"];    // Chat partner
+
+$me = $uname;
+$other = $partner;
+
+// Check if I blocked the other user
+$blockedByMe = mysqli_query($con,
+    "SELECT * FROM blocked_info
+     WHERE blocker='$me'
+     AND blocked='$other'"
+);
+
+$isBlockedByMe = mysqli_num_rows($blockedByMe) > 0;
+
+// Check if the other user blocked me
+$blockedByOther = mysqli_query($con,
+    "SELECT * FROM blocked_info
+     WHERE blocker='$other'
+     AND blocked='$me'"
+);
+
+$isBlockedByOther = mysqli_num_rows($blockedByOther) > 0;
+
+}
 
 
-   
 ?>
 <main>
 <div class="chat-container">
@@ -106,7 +130,7 @@ $read = $row['unread_count'];
           echo "<p>No active chats yet.</p>";
       }
       
-
+    
     
 
       ?>
@@ -118,10 +142,13 @@ $read = $row['unread_count'];
     <div class="chat-header">
       <?php echo $username ? "Chat with " . htmlspecialchars($username) : "Select a contact"; ?>
       <button id="clearbtn"><i class="bi bi-trash"></i></button>
-      <button id="blockbtn"> <i class="bi bi-slash-circle"></i> </button>
-      <button id="unblockbtn"> <i class="bi bi-check-circle"></i> </button>
+      
+      <button id="blockbtn">Block</button>
       
     </div>
+
+    <div id="typingIndicator" style="padding:5px 15px; color:#aaa; font-size:14px; display:none;">
+</div>
 
     <div id="messages">
       
@@ -129,15 +156,65 @@ $read = $row['unread_count'];
 
     <?php if ($username): ?>
     <div class="input-area">
+      
         <button id="emojiBtn" title="Emoji">😀</button>
+<button id="gifBtn">＋</button>
+<button id="stickerBtn" class="icon-btn">🧩</button>
+
 
       <input type="text" placeholder="Type a message..." id="msgInput" />
       <button id="sendBtn">➤</button>
+         <button id="fileBtn">📎</button>
+<input type="file" id="fileInput" style="display:none;" accept="image/*,application/pdf,video/*,audio/*">
 
         <div id="emojiPicker" class="emoji-picker"></div>
+        <!-- GIF Search Box -->
+<div id="gifBox" class="gif-box">
+    <input type="text" id="gifSearch" placeholder="Search GIFs..." />
+    <div id="gifResults" class="gif-results"></div>
+</div>
+
+<!-- Sticker Search Box -->
+<div id="stickerBox" class="sticker-box">
+    <input type="text" id="stickerSearch" placeholder="Search Stickers..." />
+    <div id="stickerResults" class="sticker-results"></div>
+</div>
 
     </div>
     <?php endif; ?>
+
+    <?php
+   
+echo "<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const blockBtn = document.getElementById('blockbtn');
+    const msgInput = document.getElementById('msgInput');
+    const emojiBtn = document.getElementById('emojiBtn');
+
+    if (!blockBtn || !msgInput) return;
+
+";
+if ($isBlockedByMe) {
+    echo "
+        blockBtn.textContent = 'Unblock';
+        msgInput.disabled = true;
+        emojiBtn.disabled = true;
+        msgInput.placeholder = 'You blocked this user';
+    ";
+}
+if ($isBlockedByOther) {
+    echo "
+        blockBtn.style.display = 'none';
+        msgInput.disabled = true;
+        emojiBtn.disabled = true;
+        msgInput.placeholder = 'You are blocked by this user';
+    ";
+}
+echo "});
+</script>";
+
+
+    ?>
   </div>
 </div>
 </main>
@@ -169,19 +246,20 @@ const sendBtn = document.getElementById("sendBtn");
 // ✅ Send message function
 function sendMessage() {
   const msg = msgInput.value.trim();
-  if (msg !== "") {
-    fetch("insertMessage.php", {
+
+  // ❌ prevent empty message sending
+  if (msg === "") return;
+
+  fetch("insertMessage.php", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: "message=" + encodeURIComponent(msg)
-    })
-    .then(() => {
+  })
+  .then(() => {
       msgInput.value = "";
-            removeSeenText();   // 🟢 NEW LINE — hides seen immediately
-
+      removeSeenText();
       loadMessages();
-    });
-  }
+  });
 }
 
 function removeSeenText() {
@@ -221,47 +299,110 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 });
 
-
 document.addEventListener("DOMContentLoaded", function() {
-  const blockBtn = document.getElementById("blockbtn");  // FIXED NAME
-  if (blockBtn) {
-    blockBtn.addEventListener("click", function() {
-      if (confirm("Do you really want to block this chat?")) {
-        fetch("insertBlocked.php")
-        .then(res => res.text())
-        .then(data => {
-          if (data.trim() === "blocked") {
-            document.getElementById("messages").innerHTML = "You blocked this user";
-            document.getElementById("msgInput").disabled = true;
-            document.getElementById("sendBtn").disabled = true;
-          }
-        });
-      }
-    });
-  }
+    const blockBtn = document.getElementById("blockbtn");
+    if (!blockBtn) return;
+
+    blockBtn.onclick = function () {
+        fetch("toggleBlock.php")
+            .then(res => res.text())
+            .then(result => {
+
+                if (result.trim() === "blocked") {
+                    blockBtn.textContent = "Unblock";
+                    msgInput.disabled = true;
+                    emojiBtn.disabled = true;
+                    msgInput.placeholder = "You blocked this user";
+                } else {
+                    blockBtn.textContent = "Block";
+                    msgInput.disabled = false;
+                    emojiBtn.disabled = false;
+                    msgInput.placeholder = "Type a message...";
+                }
+            });
+    };
 });
 
+let typingTimer;
 
-document.addEventListener("DOMContentLoaded", function() {
-  const unblockBtn = document.getElementById("unblockbtn");  // FIXED NAME
-  if (unblockBtn) {
-    unblockBtn.addEventListener("click", function() {
-      if (confirm("Do you really want to unblock this chat?")) {
-        fetch("deleteBlocked.php")
-        .then(res => res.text())
-        .then(data => {
-          if (data.trim() === "unblocked") {
-            document.getElementById("msgInput").disabled = false;
-            document.getElementById("sendBtn").disabled = false;
-          }
-        });
-      }
-    });
-  }
+// When user types
+msgInput?.addEventListener("input", function () {
+    sendTypingStatus("typing");
+
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(() => {
+        sendTypingStatus("stop");
+    }, 1000); // stop typing after 1 sec inactivity
 });
 
+function sendTypingStatus(state) {
+    fetch("typing_update.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "status=" + (state === "typing" ? "typing" : "not_typing")
+    });
+}
+
+setInterval(() => {
+    fetch("typing_status.php")
+        .then(res => res.text())
+        .then(status => {
+            const indicator = document.getElementById("typingIndicator");
+
+            if (status === "typing") {
+                indicator.style.display = "block";
+                indicator.innerText = "<?php echo $username; ?> is typing...";
+            } else {
+                indicator.style.display = "none";
+            }
+        });
+}, 1000);
 
 
+const fileBtn = document.getElementById("fileBtn");
+const fileInput = document.getElementById("fileInput");
+
+// open file chooser
+fileBtn?.addEventListener("click", () => {
+    fileInput.click();
+});
+
+// handle selected file
+fileInput?.addEventListener("change", () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    let formData = new FormData();
+    formData.append("file", file);
+
+    fetch("uploadFile.php", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.text())
+    .then(path => {
+        if (path.startsWith("uploads/")) {
+            sendFileMessage(path);
+        } else {
+            alert("Upload failed!");
+        }
+    });
+
+    fileInput.value = ""; // reset input
+});
+
+// After upload – send message with file path
+function sendFileMessage(path) {
+    fetch("insertMessage.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "file=" + encodeURIComponent(path)
+    })
+    .then(res => res.text())
+    .then(() => {
+        loadMessages();
+    });
+}
 
 
 

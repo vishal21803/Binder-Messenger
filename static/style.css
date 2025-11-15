@@ -777,3 +777,108 @@ body{
   opacity: 0.9;
   z-index: 9999;
 }
+
+.chat-img {
+    width: 150px;
+    height: auto;
+    border-radius: 10px;
+    margin: 5px 0;
+}
+
+.video-msg video {
+    width: 200px;
+    border-radius: 10px;
+}
+
+.audio-msg audio {
+    width: 200px;
+}
+
+.file-msg a {
+    color: #1976d2;
+    text-decoration: none;
+    font-weight: bold;
+}
+.icon-btn {
+  background: #eee;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.gif-box {
+  width: 280px;
+  height: 320px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px;
+  position: absolute;
+  bottom: 70px;
+  left: 10px;
+  display: none;
+  overflow: hidden;
+  z-index: 999;
+}
+
+.gif-box input {
+  width: 100%;
+  padding: 6px;
+  margin-bottom: 6px;
+}
+
+.gif-results {
+  height: 260px;
+  overflow-y: auto;
+}
+
+.gif-item {
+  width: 100%;
+  cursor: pointer;
+  margin-bottom: 6px;
+}
+
+.gif-item img {
+  width: 100%;
+  border-radius: 6px;
+}
+
+.sticker-box {
+  width: 260px;
+  height: 310px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px;
+  position: absolute;
+  bottom: 70px;
+  left: 60px;
+  display: none;
+  overflow: hidden;
+  z-index: 999;
+}
+
+.sticker-box input {
+  width: 100%;
+  padding: 6px;
+  margin-bottom: 6px;
+}
+
+.sticker-results {
+  height: 245px;
+  overflow-y: auto;
+}
+
+.sticker-item img {
+  width: 100%;
+  cursor: pointer;
+  margin-bottom: 8px;
+  border-radius: 8px;
+}
+
+.icon-btn {
+  background: #eee;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
