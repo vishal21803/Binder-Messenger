@@ -311,6 +311,20 @@ document.getElementById("blockbtn").onclick = function () {
         });
 };
 
+function scrollToBottom() {
+    const msgDiv = document.getElementById("messages");
+    msgDiv.scrollTop = msgDiv.scrollHeight;
+}
+
+// 🔥 Run only ONCE after initial page load
+document.addEventListener("DOMContentLoaded", function () {
+    loadMessages();  // first time load chat
+
+    setTimeout(() => {
+        scrollToBottom();   // scroll only once
+    }, 500); // small delay so messages load first
+});
+
 
 // ---------- GIF PICKER ----------
 const gifBtn = document.getElementById("gifBtn");
@@ -372,6 +386,7 @@ function sendGifMessage(gifUrl) {
         body: "file=" + encodeURIComponent(gifUrl)
     }).then(() => {
         loadMessages();
+        setTimeout(scrollToBottom, 200);
     });
 }
 
@@ -438,5 +453,7 @@ function sendStickerMessage(stickerUrl) {
     body: "file=" + encodeURIComponent(stickerUrl)
   }).then(() => {
     loadMessages();
+    setTimeout(scrollToBottom, 200);
   });
 }
+

@@ -51,17 +51,7 @@ if (isset($_SESSION["uname"]) && $_SESSION["utype"] == 'user') {
     $ckey = isset($_SESSION["ckey"]) ? $_SESSION["ckey"] : null;
 
     // ✅ Fetch all contacts related to current user
-   $rscheck = mysqli_query($con, "
-  SELECT
-    CASE WHEN c.cuser = '$uname' THEN c.you ELSE c.cuser END AS partner,
-    MAX(m.mtime) AS last_msg_time,
-    c.cid, c.ckey,c.cuser,c.you
-  FROM chat_info c
-  LEFT JOIN message_info m ON m.mkey = c.ckey
-  WHERE '$uname' IN (c.cuser, c.you)
-  GROUP BY c.cid, partner, c.ckey
-  ORDER BY last_msg_time DESC
-") or die("SQL error: " . mysqli_error($con));
+ 
 
 if(isset($_SESSION["chat_user"])){
 $partner = $_SESSION["chat_user"];    // Chat partner
@@ -88,6 +78,18 @@ $blockedByOther = mysqli_query($con,
 $isBlockedByOther = mysqli_num_rows($blockedByOther) > 0;
 
 }
+
+if(isset($_SESSION["chat_user"])){
+if ($_SESSION["chat_user"] == $partner) {
+    // mark all messages as read for this chat
+    mysqli_query($con,
+        "UPDATE message_info SET is_read = 1 
+         WHERE mreceiver='$uname' 
+           AND msender='$partner'"
+    );
+}
+}
+
 
 
 ?>
@@ -119,13 +121,15 @@ $read = $row['unread_count'];
               
               $activeClass = ($partner == $username) ? "active-user" : "";
               echo "<div class='user $activeClass'>";
-              echo "<a href='userChat.php?name=$partner' style='display:block;text-decoration:none;color:white'>$partner</a>";
+              echo "<a href='#' onclick=\"openChat('$partner')\"  style='display:block;text-decoration:none;color:white'>$partner</a>";
+
               if($read>0){
                 echo("<span class='badge'>$read</span>");
               }
              
               echo "</div>";
           }
+          include("loadContacts.php");
       } else {
           echo "<p>No active chats yet.</p>";
       }
@@ -230,6 +234,8 @@ function loadMessages() {
       if (messagesDiv.dataset.lastHtml !== data) {
         messagesDiv.innerHTML = data;
         messagesDiv.dataset.lastHtml = data;
+
+        
       }
     })
     .catch(err => console.error("Error loading messages:", err));
@@ -259,7 +265,10 @@ function sendMessage() {
       msgInput.value = "";
       removeSeenText();
       loadMessages();
+              setTimeout(scrollToBottom, 200);  // 🔥 always scroll after sending message
+
   });
+
 }
 
 function removeSeenText() {
@@ -401,6 +410,8 @@ function sendFileMessage(path) {
     .then(res => res.text())
     .then(() => {
         loadMessages();
+                setTimeout(scrollToBottom, 200);  // 🔥 always scroll after sending message
+
     });
 }
 
