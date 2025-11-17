@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>DP Editor — No body CSS</title>
+<style>
+/* Container & layout (NO body{} styles included) */
+.editor-wrapper {
+  max-width: 1000px;
+  margin: 18px auto;
+  border-radius: 12px;
+  padding: 14px;
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 16px;
+  background: #ffffff;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+  font-family: Arial, Helvetica, sans-serif;
+  color: #111;
+}
+
+/* Canvas card */
+.canvas-card {
+  border-radius: 10px;
+  padding: 12px;
+  background: linear-gradient(180deg,#fff,#fbfdff);
+  border: 1px solid #eef2f5;
+}
+.drop-zone {
+  position: relative;
+  width: 100%;
+  padding-top: 100%; /* square */
+  border-radius: 10px;
+  background: #f6f8fa;
+  border: 2px dashed #e6eef6;
+  overflow: hidden;
+  cursor: pointer;
+}
+.canvas-area {
+  position: absolute;
+  inset: 0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+#mainCanvas {
+  width: 86%;
+  height: 86%;
+  border-radius: 8px;
+  background: #eee;
+  display:block;
+  box-shadow: 0 8px 24px rgba(10,20,30,0.04);
+}
+
+/* Circular mask overlay (visual) */
+.crop-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.crop-overlay svg { width:100%; height:100%; }
+
+/* Controls */
+.controls {
+  margin-top: 12px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.control {
+  background:#fff;
+  border-radius:10px;
+  padding:8px;
+  border:1px solid #f0f3f7;
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.control label { min-width:60px; color:#556; font-size:13px; }
+
+/* Filter thumbnails row */
+.filter-row {
+  margin-top:12px;
+  display:flex;
+  gap:10px;
+  overflow:auto;
+  padding-bottom:6px;
+}
+.filter-thumb {
+  width:88px;
+  height:88px;
+  border-radius:10px;
+  border:1px solid #eee;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  background:#fff;
+  flex:0 0 auto;
+}
+.filter-thumb.active { box-shadow: 0 8px 22px rgba(18,147,248,0.12); border-color: rgba(18,147,248,0.14); }
+
+/* Right column */
+.side {
+  padding:10px;
+}
+.dp-preview {
+  width:140px; height:140px; border-radius:50%; overflow:hidden; background:#ddd; border:1px solid #eee;
+  display:flex;align-items:center;justify-content:center;
+}
+.dp-preview img { width:100%; height:100%; object-fit:cover; display:block; }
+.actions { margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; }
+button.btn { padding:10px 14px; border-radius:10px; border:none; cursor:pointer; background:#1293f8; color:#fff; }
+button.ghost { background:#fff; color:#000; border:1px solid rgba(0,0,0,0.08); }
+.small { padding:6px 8px; font-size:13px; border-radius:8px; }
+
+/* Responsive: single column on small screens */
+@media (max-width:920px){
+  .editor-wrapper { grid-template-columns: 1fr; }
+  .side { order: 2; }
+}
+</style>
+</head>
+<body>
+
+<div class="editor-wrapper">
+
+  <!-- LEFT: Canvas + controls -->
+  <div class="canvas-card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <strong style="font-size:16px">Edit Profile Photo</strong>
+        <div style="font-size:13px;color:#556">Drag to move · Wheel to zoom · Rotate · Filters</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button id="resetBtn" class="small ghost">Reset</button>
+        <button id="fitBtn" class="small ghost">Fit</button>
+      </div>
+    </div>
+
+    <div class="drop-zone" id="dropZone" title="Click or drop image">
+      <div class="canvas-area">
+        <canvas id="mainCanvas" width="900" height="900"></canvas>
+      </div>
+
+      <!-- circular mask overlay (visual only) -->
+      <div class="crop-overlay" aria-hidden="true">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+          <defs>
+            <mask id="mask">
+              <rect x="0" y="0" width="100" height="100" fill="white"/>
+              <circle cx="50" cy="50" r="33" fill="black"/>
+            </mask>
+          </defs>
+          <rect x="0" y="0" width="100" height="100" fill="rgba(0,0,0,0.4)" mask="url(#mask)"></rect>
+          <circle cx="50" cy="50" r="33" fill="none" stroke="white" stroke-width="0.8"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <div class="control">
+        <label>Zoom</label>
+        <input type="range" id="zoom" min="0.4" max="3" step="0.01" value="1">
+      </div>
+
+      <div class="control">
+        <label>Rotate</label>
+        <button id="rotLeft" class="small ghost">⟲</button>
+        <button id="rotRight" class="small ghost">⟳</button>
+        <div id="rotDeg" style="min-width:36px;text-align:center">0°</div>
+      </div>
+
+      <div class="control">
+        <label>Compare</label>
+        <button id="baToggle" class="small ghost">Before/After</button>
+      </div>
+    </div>
+
+    <!-- Filters row -->
+    <div class="filter-row" id="filterRow">
+      <!-- thumbnails added by JS -->
+    </div>
+
+    <!-- Adjustments -->
+    <div style="margin-top:12px; display:flex; gap:12px; flex-wrap:wrap">
+      <div style="min-width:260px">
+        <div style="font-weight:600;margin-bottom:8px">Adjustments</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <label style="min-width:90px;color:#556">Brightness</label>
+          <input id="brightness" type="range" min="40" max="200" value="100">
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <label style="min-width:90px;color:#556">Contrast</label>
+          <input id="contrast" type="range" min="40" max="200" value="100">
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <label style="min-width:90px;color:#556">Saturate</label>
+          <input id="saturate" type="range" min="0" max="200" value="100">
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <label style="min-width:90px;color:#556">Grayscale</label>
+          <input id="grayscale" type="range" min="0" max="100" value="0">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Preview & Save -->
+  <div class="side">
+    <div>
+      <strong style="font-size:15px">Preview</strong>
+      <div style="font-size:13px;color:#556;margin-top:6px">How the circular avatar will look</div>
+    </div>
+
+    <div style="margin-top:12px;display:flex;gap:12px;align-items:center">
+      <div class="dp-preview" id="dpPreview">
+        <img id="previewImg" src="" alt="preview">
+      </div>
+      <div style="flex:1">
+        <div style="font-weight:600">Profile Avatar</div>
+        <div style="font-size:13px;color:#556">Square export with transparent background outside the circle</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="downloadBtn" class="btn">Download (1080)</button>
+      <button id="saveBtn" class="ghost">Save to Server</button>
+    </div>
+
+    <!-- Hidden form to post base64 to server -->
+    <form id="uploadForm" action="changeDP.php" method="POST" style="display:none;">
+      <input type="hidden" name="imageData" id="imageData">
+    </form>
+
+    <div style="margin-top:10px;font-size:13px;color:#556">Tip: Double-click the drop area to use file dialog. You can also paste an image.</div>
+  </div>
+
+</div>
+
+<script>
+/* Minimal but fully functional editor script
+ - click / double-click / drag-drop to load
+ - pointer drag to pan, wheel to zoom, rotate buttons
+ - presets (added to filterRow), adjustment sliders
+ - download or POST base64 to changeDP.php via hidden form
+*/
+
+// Elements
+const dropZone = document.getElementById('dropZone');
+const canvas = document.getElementById('mainCanvas');
+const ctx = canvas.getContext('2d', { willReadFrequently: true });
+const previewImg = document.getElementById('previewImg');
+const zoomEl = document.getElementById('zoom');
+const brightnessEl = document.getElementById('brightness');
+const contrastEl = document.getElementById('contrast');
+const saturateEl = document.getElementById('saturate');
+const grayscaleEl = document.getElementById('grayscale');
+const filterRow = document.getElementById('filterRow');
+const downloadBtn = document.getElementById('downloadBtn');
+const saveBtn = document.getElementById('saveBtn');
+const uploadForm = document.getElementById('uploadForm');
+const imageDataInput = document.getElementById('imageData');
+const rotLeft = document.getElementById('rotLeft');
+const rotRight = document.getElementById('rotRight');
+const rotDeg = document.getElementById('rotDeg');
+const resetBtn = document.getElementById('resetBtn');
+const fitBtn = document.getElementById('fitBtn');
+const baToggle = document.getElementById('baToggle') || document.getElementById('baToggle'); // not guaranteed
+
+// Internal canvas resolution for crisp exports
+const INTERNAL = 1000;
+canvas.width = INTERNAL;
+canvas.height = INTERNAL;
+
+// Editor state
+let state = {
+  img: null, imgW: 0, imgH:0,
+  x: 0, y: 0, scale: 1, rotation: 0,
+  filters: { brightness:100, contrast:100, saturate:100, grayscale:0 },
+  preset: 'none',
+  loaded: false
+};
+let undoState = null;
+
+// Helper to build filter string
+function filterString(f){ 
+  return `brightness(${f.brightness}%) contrast(${f.contrast}%) saturate(${f.saturate}%) grayscale(${f.grayscale}%)`;
+}
+
+// Draw function (main)
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // optional background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  if(!state.loaded || !state.img){
+    // placeholder
+    ctx.fillStyle = '#eeeeee';
+    const s = canvas.width * 0.6;
+    ctx.fillRect((canvas.width-s)/2,(canvas.height-s)/2,s,s);
+    updatePreview();
+    return;
+  }
+
+  ctx.save();
+  ctx.filter = filterString(state.filters);
+
+  // center + translate
+  ctx.translate(canvas.width/2 + state.x, canvas.height/2 + state.y);
+  ctx.rotate(state.rotation * Math.PI / 180);
+  ctx.scale(state.scale, state.scale);
+
+  // draw image centered
+  ctx.drawImage(state.img, -state.imgW/2, -state.imgH/2, state.imgW, state.imgH);
+  ctx.restore();
+
+  updatePreview();
+}
+
+// Update circular preview on right
+function updatePreview(){
+  const size = 360;
+  const tmp = document.createElement('canvas');
+  tmp.width = size; tmp.height = size;
+  const tctx = tmp.getContext('2d');
+
+  // draw transformed image on tmp
+  tctx.clearRect(0,0,size,size);
+  tctx.filter = filterString(state.filters);
+
+  const sf = size / canvas.width;
+  tctx.save();
+  tctx.translate(size/2 + state.x*sf, size/2 + state.y*sf);
+  tctx.rotate(state.rotation * Math.PI/180);
+  tctx.scale(state.scale*sf, state.scale*sf);
+  if(state.loaded) tctx.drawImage(state.img, -state.imgW/2, -state.imgH/2, state.imgW, state.imgH);
+  tctx.restore();
+
+  // mask to circle
+  const mask = document.createElement('canvas'); mask.width=size; mask.height=size;
+  const mctx = mask.getContext('2d');
+  mctx.fillStyle = '#000'; mctx.fillRect(0,0,size,size);
+  mctx.globalCompositeOperation = 'destination-out';
+  mctx.beginPath(); mctx.arc(size/2,size/2,size/2,0,Math.PI*2); mctx.fill();
+
+  tctx.globalCompositeOperation = 'destination-in';
+  tctx.drawImage(mask,0,0);
+
+  previewImg.src = tmp.toDataURL('image/png');
+}
+
+// Load file into state
+function loadFile(file){
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    const im = new Image();
+    im.onload = ()=>{
+      // compute imgW/imgH so image covers circle area (cover)
+      const circle = canvas.width * 0.66;
+      const aspect = im.width / im.height;
+      if(im.width >= im.height){
+        state.imgH = circle;
+        state.imgW = circle * aspect;
+      } else {
+        state.imgW = circle;
+        state.imgH = circle / aspect;
+      }
+      state.img = im;
+      state.x = 0; state.y = 0; state.scale = 1; state.rotation = 0;
+      state.loaded = true;
+      // set filters initial
+      state.filters = { brightness:100, contrast:100, saturate:100, grayscale:0 };
+      // set sliders
+      zoomEl.value = state.scale;
+      brightnessEl.value = 100; contrastEl.value = 100; saturateEl.value = 100; grayscaleEl.value = 0;
+      populateFilterThumbs(im.src);
+      pushUndo();
+      draw();
+    };
+    im.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// Drop & click handlers
+dropZone.addEventListener('dragover', e=>{ e.preventDefault(); dropZone.style.borderColor = 'rgba(18,147,248,0.22)'; });
+dropZone.addEventListener('dragleave', e=>{ dropZone.style.borderColor = ''; });
+dropZone.addEventListener('drop', e=>{ e.preventDefault(); dropZone.style.borderColor = ''; const f = e.dataTransfer.files[0]; loadFile(f); });
+dropZone.addEventListener('dblclick', ()=>{
+  const inp = document.createElement('input'); inp.type='file'; inp.accept='image/*';
+  inp.onchange = ()=> loadFile(inp.files[0]);
+  inp.click();
+});
+
+// pointer drag to pan
+let panning = false, last = {x:0,y:0};
+canvas.addEventListener('pointerdown', (e)=>{ if(!state.loaded) return; panning = true; last.x = e.clientX; last.y = e.clientY; canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener('pointermove', (e)=>{ if(!panning) return; const rect = canvas.getBoundingClientRect(); const dx = (e.clientX - last.x) * (canvas.width/rect.width); const dy = (e.clientY - last.y) * (canvas.width/rect.width); state.x += dx; state.y += dy; last.x = e.clientX; last.y = e.clientY; draw(); });
+canvas.addEventListener('pointerup', (e)=>{ panning=false; try{ canvas.releasePointerCapture(e.pointerId); }catch(e){} pushUndo(); });
+canvas.addEventListener('pointercancel', ()=>{ panning=false; });
+
+// wheel zoom
+canvas.addEventListener('wheel', (e)=>{ if(!state.loaded) return; e.preventDefault(); const delta = -e.deltaY * 0.0015; const newScale = Math.min(3, Math.max(0.4, state.scale * (1 + delta))); state.scale = newScale; zoomEl.value = state.scale; draw(); pushUndo(); }, { passive:false });
+
+// zoom slider
+zoomEl.addEventListener('input', ()=>{ state.scale = parseFloat(zoomEl.value); draw(); });
+
+// rotate buttons
+rotLeft.addEventListener('click', ()=>{ state.rotation = (state.rotation - 15) % 360; rotDeg.textContent = state.rotation + '°'; draw(); pushUndo(); });
+rotRight.addEventListener('click', ()=>{ state.rotation = (state.rotation + 15) % 360; rotDeg.textContent = state.rotation + '°'; draw(); pushUndo(); });
+
+// fit & reset
+fitBtn.addEventListener('click', ()=>{ if(!state.loaded) return; const circle = canvas.width * 0.66; const sx = circle / state.imgW; const sy = circle / state.imgH; state.scale = Math.max(sx, sy); state.x=0; state.y=0; state.rotation=0; zoomEl.value = state.scale; rotDeg.textContent = state.rotation + '°'; draw(); pushUndo(); });
+resetBtn.addEventListener('click', ()=>{ if(!state.loaded) return; state.x=0; state.y=0; state.scale=1; state.rotation=0; state.filters = { brightness:100, contrast:100, saturate:100, grayscale:0 }; brightnessEl.value=100; contrastEl.value=100; saturateEl.value=100; grayscaleEl.value=0; document.querySelectorAll('.filter-thumb').forEach(t=>t.classList.remove('active')); draw(); pushUndo(); });
+
+// adjustments
+[brightnessEl, contrastEl, saturateEl, grayscaleEl].forEach(el=>{
+  el.addEventListener('input', ()=>{ state.filters.brightness = parseFloat(brightnessEl.value); state.filters.contrast = parseFloat(contrastEl.value); state.filters.saturate = parseFloat(saturateEl.value); state.filters.grayscale = parseFloat(grayscaleEl.value); draw(); });
+});
+
+// presets
+const presetDefs = {
+  none:{brightness:100, contrast:100, saturate:100, grayscale:0},
+  clarendon:{brightness:110, contrast:110, saturate:140, grayscale:0},
+  juno:{brightness:106, contrast:106, saturate:150, grayscale:0},
+  lark:{brightness:110, contrast:103, saturate:120, grayscale:0},
+  valencia:{brightness:115, contrast:103, saturate:110, grayscale:0},
+  bw:{brightness:100, contrast:120, saturate:0, grayscale:0}
+};
+
+function populateFilterThumbs(src){
+  filterRow.innerHTML = '';
+  Object.keys(presetDefs).forEach(key=>{
+    const div = document.createElement('div'); div.className='filter-thumb'; div.dataset.preset = key;
+    const im = document.createElement('img'); im.alt = key; im.src = src || '';
+    // apply visual filter for thumbnail using CSS filter matching preset
+    const p = presetDefs[key];
+    im.style.filter = `brightness(${p.brightness}%) contrast(${p.contrast}%) saturate(${p.saturate}%) grayscale(${p.grayscale}%)`;
+    div.appendChild(im);
+    div.addEventListener('click', ()=>{
+      state.filters = {...p};
+      brightnessEl.value = p.brightness; contrastEl.value = p.contrast; saturateEl.value = p.saturate; grayscaleEl.value = p.grayscale;
+      document.querySelectorAll('.filter-thumb').forEach(t=>t.classList.remove('active'));
+      div.classList.add('active');
+      draw(); pushUndo();
+    });
+    filterRow.appendChild(div);
+  });
+}
+
+// undo (single)
+function pushUndo(){
+  undoState = { x: state.x, y: state.y, scale: state.scale, rotation: state.rotation, filters: {...state.filters} };
+}
+function undo(){
+  if(!undoState) return;
+  state.x = undoState.x; state.y = undoState.y; state.scale = undoState.scale; state.rotation = undoState.rotation; state.filters = {...undoState.filters};
+  draw(); undoState = null;
+}
+// (wire undo to reset button double function or separate as needed)
+resetBtn.addEventListener('dblclick', ()=> { undo(); });
+
+// Export high-res (square) with circular transparency outside
+function exportImage(size = 1080){
+  if(!state.loaded) return null;
+  const out = document.createElement('canvas'); out.width = size; out.height = size;
+  const octx = out.getContext('2d');
+  octx.clearRect(0,0,size,size);
+
+  // apply filters
+  octx.filter = filterString(state.filters);
+
+  // transform mapping from internal canvas to output
+  const sf = size / canvas.width;
+  octx.save();
+  octx.translate(size/2 + state.x*sf, size/2 + state.y*sf);
+  octx.rotate(state.rotation * Math.PI/180);
+  octx.scale(state.scale * sf, state.scale * sf);
+  octx.drawImage(state.img, -state.imgW/2, -state.imgH/2, state.imgW, state.imgH);
+  octx.restore();
+
+  // mask to circle (keep circle, make outside transparent)
+  const mask = document.createElement('canvas'); mask.width=size; mask.height=size;
+  const mctx = mask.getContext('2d');
+  mctx.fillStyle = '#000'; mctx.fillRect(0,0,size,size);
+  mctx.globalCompositeOperation = 'destination-out';
+  mctx.beginPath(); mctx.arc(size/2,size/2,size/2,0,Math.PI*2); mctx.fill();
+
+  octx.globalCompositeOperation = 'destination-in';
+  octx.drawImage(mask,0,0);
+
+  return out;
+}
+
+// download
+downloadBtn.addEventListener('click', ()=>{
+  const out = exportImage(1080);
+  if(!out) return alert('Please load an image first.');
+  out.toBlob(blob => {
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'profile_dp.png'; a.click();
+  }, 'image/png');
+});
+
+// save to server
+saveBtn.addEventListener('click', ()=>{
+  const out = exportImage(1080);
+  if(!out) return alert('Please load an image first.');
+  const data = out.toDataURL('image/png');
+  imageDataInput.value = data;
+  uploadForm.submit();
+});
+
+// keyboard paste support (paste image)
+window.addEventListener('paste', (e)=>{
+  const items = e.clipboardData && e.clipboardData.items;
+  if(!items) return;
+  for(const it of items){
+    if(it.type.indexOf('image') !== -1){
+      const f = it.getAsFile(); loadFile(f); break;
+    }
+  }
+});
+
+// simple rotation display
+rotDeg.textContent = state.rotation + '°';
+
+// small convenience: double-click dropZone to open file picker (already enabled)
+dropZone.addEventListener('click', ()=> {
+  // single-click opens file dialog instead of dblclick for faster use
+  const inp = document.createElement('input'); inp.type='file'; inp.accept='image/*';
+  inp.onchange = ()=> loadFile(inp.files[0]);
+  inp.click();
+});
+
+// initial draw
+draw();
+</script>
+
+</body>
+</html>

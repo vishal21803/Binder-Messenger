@@ -65,7 +65,7 @@ while($row=mysqli_fetch_array($rscheck)){
           <a class='nav-link' href='requestPage.php'>Requests</a>
         </li>
         <li class='nav-item'>
-          <a class='nav-link' href=''>User</a>
+          <a class='nav-link' href='userProfile.php'>User</a>
         </li>
         <li class='nav-item'>
           <a class='nav-link' href='logout.php'>Logout</a>

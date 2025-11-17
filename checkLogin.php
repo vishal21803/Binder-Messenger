@@ -16,6 +16,12 @@
         
         $_SESSION['uname']=$a;
         $_SESSION['uid']=$row["uid"];
+
+        if($row['onboard_status'] == 0){
+           $_SESSION['utype']='user';
+    header("location:onboard_name.php");  // Page 1
+    exit;
+}
         if($row["utype"]=='user'){
             
             $_SESSION['utype']='user';
