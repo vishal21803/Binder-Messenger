@@ -105,71 +105,160 @@ if (mysqli_num_rows($followers) > 0) {
 
 		<div class="gallery">
 
+			<?php
+$rspost=mysqli_query($con,"select * from post_info where uid='$uid' order by post_time desc");
+
+while($row=mysqli_fetch_array($rspost)){
+    $postimg=$row["post_img"];
+	$caption=$row["caption"];
+	$pid=$row["pid"];
+    
+	
+
+// count likes
+$likes = mysqli_num_rows(mysqli_query($con, "SELECT * FROM post_likes WHERE post_id='$pid' "));
+
+// user liked?
+$userLiked = mysqli_num_rows(mysqli_query($con, "
+   SELECT * FROM post_likes WHERE uid='$uid' AND post_id='$pid' "
+)) > 0;
+
+    $likeIcon = $userLiked ? "❤️" : "🤍";
+
+echo "
+                <a data-bs-toggle='modal' data-bs-target='#myModal'>
+
+	<div class='gallery-item' tabindex='0'>
+				<img src='uploads/$postimg' class='gallery-image' alt='' >
+               
+				<div class='gallery-item-info'>
+
+					<ul>
+						<li class='gallery-item-likes'><span class='visually-hidden'>Likes:</span><i class='fas fa-heart' aria-hidden='true'></i> 89</li>
+						<li class='gallery-item-comments'><span class='visually-hidden'>Comments:</span><i class='fas fa-comment' aria-hidden='true'></i> 5</li>
+					</ul>
+
+				</div>
+
+			</div>
+
+			</a>
+
+
+
+
+			
+<!-- The Modal -->
+<div class='modal fade' id='myModal'>
+  <div class='modal-dialog'>
+    <div class='modal-content'>
+
+      
+
+      <!-- Modal body -->
+      <div class='modal-body'>
+        <div class='feed-container'>
+
+    <!-- POST TEMPLATE -->
+    <div class='post-card'>
+
+        <div class='post-header'>
+            <img src='uploads/$dp'>
+            <div>
+                <div class='post-username'>$uname</div>
+                <div class='post-time'>2 hours ago</div>
+            </div>
+        </div>
+
+        <img src='uploads/$postimg' class='post-img'>
+
+        <div class='post-body'>
+
+            <div class='post-actions'>
+              <button><i class='bi bi-heart'></i></button>
+                              <button><i class='bi bi-chat-left-dots'></i></button>
+
+                
+            </div>
+
+            <div class='likes'> $likes Likes</div>
+
+            <div class='caption'><b></b>  $caption</div>
+
+            <button class='delete-btn' onclick='deletePost(this)'>Delete Post</button>
+
+            <div class='comment-list' id='commentBox'>
 			
 
-			<div class="gallery-item" tabindex="0">
+                <span class='like-btn' id='like_$pid' onclick='likePost($pid)'>
+             $likeIcon
+                </span>
+            </div>
 
-				<img src="https://images.unsplash.com/photo-1497445462247-4330a224fdb1?w=500&h=500&fit=crop" class="gallery-image" alt="">
+            <div class='comment-input'>
+                <input type='text' id='commentText' placeholder='Add a comment...'>
+                <button onclick='addComment()'>Post</button>
+            </div>
 
-				<div class="gallery-item-info">
+        </div>
 
-					<ul>
-						<li class="gallery-item-likes"><span class="visually-hidden">Likes:</span><i class="fas fa-heart" aria-hidden="true"></i> 89</li>
-						<li class="gallery-item-comments"><span class="visually-hidden">Comments:</span><i class="fas fa-comment" aria-hidden="true"></i> 5</li>
-					</ul>
+    </div>
+</div>
+      </div>
 
-				</div>
+      <!-- Modal footer -->
+      <div class='modal-footer'>
+        <button type='button' class='btn btn-danger' data-bs-dismiss='modal'>Close</button>
+      </div>
 
-			</div>
+    </div>
+  </div>
+</div>
 
-			<div class="gallery-item" tabindex="0">
+			";
+}
+?>
 
-				<img src="https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=500&h=500&fit=crop" class="gallery-image" alt="">
-
-				<div class="gallery-item-type">
-
-					<span class="visually-hidden">Gallery</span><i class="fas fa-clone" aria-hidden="true"></i>
-
-				</div>
-
-				<div class="gallery-item-info">
-
-					<ul>
-						<li class="gallery-item-likes"><span class="visually-hidden">Likes:</span><i class="fas fa-heart" aria-hidden="true"></i> 42</li>
-						<li class="gallery-item-comments"><span class="visually-hidden">Comments:</span><i class="fas fa-comment" aria-hidden="true"></i> 1</li>
-					</ul>
-
-				</div>
-
-			</div>
+			
 
 		
-			<div class="gallery-item" tabindex="0">
 
-				<img src="https://images.unsplash.com/photo-1505058707965-09a4469a87e4?w=500&h=500&fit=crop" class="gallery-image" alt="">
-
-				<div class="gallery-item-info">
-
-					<ul>
-						<li class="gallery-item-likes"><span class="visually-hidden">Likes:</span><i class="fas fa-heart" aria-hidden="true"></i> 41</li>
-						<li class="gallery-item-comments"><span class="visually-hidden">Comments:</span><i class="fas fa-comment" aria-hidden="true"></i> 0</li>
-					</ul>
-
-				</div>
-
-			</div>
-
-
-		</div>
+		
 		<!-- End of gallery -->
 
 
 	</div>
 	<!-- End of container -->
 
+
+
+
+
+
+
+
+	
 </main>
 
 
+<script>
+	function likePost(postId, btn) {
+    fetch("like.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "post_id=" + postId
+    })
+    .then(res => res.text())
+    .then(data => {
+        if (data === "liked") {
+            btn.innerHTML = "❤️";
+        } else {
+            btn.innerHTML = "🤍";
+        }
+    });
+}
+
+</script>
 
 <?php
 include("footer.php");

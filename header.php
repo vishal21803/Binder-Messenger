@@ -51,7 +51,10 @@ while($row=mysqli_fetch_array($rscheck)){
         ");
       }
          else if($utype=='user'){
-        echo("   
+        echo("  
+        <li class='nav-item'>
+          <a class='nav-link' href='postPage.php'>Add Post</a>
+        </li> 
          <li class='nav-item'>
           <a class='nav-link' href='friendList.php'>Friendlist</a>
         </li>
