@@ -1716,3 +1716,154 @@ textarea {
         float: right;
         margin-bottom: 10px;
     }
+
+    
+
+.search-container {
+  width: 95%;
+  max-width: 700px;
+  margin: 20px auto;
+}
+
+/* User Card */
+.user-card {
+  width: 100%;
+  padding: 15px;
+  margin: 12px 0;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: 0.35s ease;
+}
+
+.user-card:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Avatar */
+.avatar img {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+}
+
+/* Text */
+.details h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+.details p {
+  margin: 3px 0 0;
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+/* Buttons */
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.main-btn, .secondary-btn, .status-btn {
+  padding: 7px 15px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: 0.25s ease;
+}
+
+/* Follow Button */
+.main-btn {
+  background: #4A90E2;
+  color: #fff;
+}
+.main-btn:hover {
+  background: #357ABD;
+}
+
+/* Status Buttons */
+.status-btn {
+  background: #FF8A65;
+  color: white;
+}
+.status-btn:hover {
+  background: #FF7043;
+}
+
+/* View Profile Button */
+.secondary-btn {
+  background: transparent;
+  color: white;
+  border: 1px solid #ffffff88;
+}
+.secondary-btn:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+/* No results */
+.no-results {
+  text-align: center;
+  padding: 20px;
+  color: #ccc;
+  font-size: 1.1rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 600px) {
+  .user-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+  .actions {
+    justify-content: center;
+  }
+}
+
+.profilereq {
+ margin-left: 200px;
+ position: relative;
+ top:-55px;
+ width: 130px;
+ height: 50px;
+ font-size: 22px;
+}
+
+.private-box {
+    width: 100%;
+    text-align: center;
+    padding: 40px;
+    margin-top: 20px;
+    color: white;
+}
+
+.private-box .private-icon {
+    width: 100px;
+    opacity: 0.8;
+    margin-bottom: 10px;
+}
+
+.private-box h2 {
+    font-size: 26px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.private-box p {
+    font-size: 18px;
+    opacity: 0.7;
+}
