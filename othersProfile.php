@@ -242,7 +242,7 @@ echo "
 
         <!-- PRIVATE ACCOUNT MESSAGE -->
         <div class="private-box">
-            <img src="images/private.png" class="private-icon">
+            <img src="img/private.png" class="private-icon">
             <h2>This Account is Private</h2>
             <p>Follow to see photos and videos.</p>
         </div>

@@ -55,9 +55,7 @@ while($row=mysqli_fetch_array($rscheck)){
         <li class='nav-item'>
           <a class='nav-link' href='postPage.php'>Add Post</a>
         </li> 
-         <li class='nav-item'>
-          <a class='nav-link' href='friendList.php'>Friendlist</a>
-        </li>
+         
         <li class='nav-item'>
           <a class='nav-link' href='userChat.php'>Chat</a>
         </li>

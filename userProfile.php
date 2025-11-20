@@ -66,8 +66,8 @@ while($row5=mysqli_fetch_array($rsCount)){
 			<div class="profile-stats">
 				<ul>
 					<li><span class="profile-stat-count"><?php echo($pcount);?></span> posts</li>
-					<li><span class="profile-stat-count"><?php echo $count2 ?></span> followers</li>
-					<li><span class="profile-stat-count"><?php echo $count ?></span> following</li>
+					<li><a style="text-decoration:none; color:#322627;" href="userFollower.php"><span class="profile-stat-count"><?php echo $count2 ?></span> followers</a></li>
+					<li><a style="text-decoration:none; color:#322627;" href="userFollowing.php"><span class="profile-stat-count"><?php echo $count ?></span> following</a></li>
 				</ul>
 			</div>
 
