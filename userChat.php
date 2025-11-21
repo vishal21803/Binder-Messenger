@@ -1,5 +1,16 @@
 <?php 
 @session_start();
+
+if (isset($_GET['clear']) && $_GET['clear'] == 1) {
+
+    unset($_SESSION["chat_id"]);
+    unset($_SESSION["ckey"]);
+    unset($_SESSION["chat_user"]);
+    
+    // Optional: agar redirect chahiye ho
+    // header("Location: yourpage.php");
+    // exit;
+}
 if (isset($_SESSION["uname"]) && $_SESSION["utype"] == 'user') {
     include("header.php");
     include("connectdb.php");
@@ -94,11 +105,17 @@ if ($_SESSION["chat_user"] == $partner) {
 
 ?>
 <main>
+   
+
+    
 <div class="chat-container">
+    
   <!-- Sidebar -->
   <div class="sidebar">
     <h3>Contacts</h3>
+
     <div id="userList">
+        
       <?php
       if (mysqli_num_rows($rscheck) > 0) {
           while ($row = mysqli_fetch_assoc($rscheck)) {
@@ -144,10 +161,14 @@ $read = $row['unread_count'];
   <!-- Chat Box -->
   <div class="chat-box">
     <div class="chat-header">
+                  <span title="Chatlist" class="back-btn" onclick="showSidebar()">⬅</span>
+
       <?php echo $username ? "Chat with " . htmlspecialchars($username) : "Select a contact"; ?>
-      <button id="clearbtn"><i class="bi bi-trash"></i></button>
-      
-      <button id="blockbtn">Block</button>
+    <?php if ($username): ?> 
+        <button title="clear chat" id="clearbtn"><i title="clear chat" class="bi bi-trash"></i></button>
+        <button id="blockbtn">Block</button>
+    <?php endif; ?>
+
       
     </div>
 
@@ -413,6 +434,14 @@ function sendFileMessage(path) {
                 setTimeout(scrollToBottom, 200);  // 🔥 always scroll after sending message
 
     });
+}
+
+function showSidebar(){
+    document.querySelector(".sidebar").classList.add("show");
+}
+
+function hideSidebar(){
+    document.querySelector(".sidebar").classList.remove("show");
 }
 
 

@@ -456,4 +456,3 @@ function sendStickerMessage(stickerUrl) {
     setTimeout(scrollToBottom, 200);
   });
 }
-

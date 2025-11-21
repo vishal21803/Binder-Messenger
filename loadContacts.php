@@ -33,9 +33,9 @@ while ($row = mysqli_fetch_assoc($rscheck)) {
     $r = mysqli_fetch_assoc($res);
     $unread = $r["unread_count"];
  $activeClass = ($partner == $username) ? "active-user" : "";
-    echo "<div class='user $activeClass'>
+    echo "<div class='user $activeClass' onclick='openChat();'>
             <a href='userChat.php?name=$partner' 
-               style='display:block;text-decoration:none;color:white'>$partner</a>";
+               style='display:block;text-decoration:none;color:white' onclick='openChat();'>$partner</a>";
 
     if ($unread > 0) {
         echo "<span class='badge'>$unread</span>";
@@ -46,6 +46,8 @@ while ($row = mysqli_fetch_assoc($rscheck)) {
 ?>
 
 <script>
+        
+
     function loadContacts() {
     fetch("loadContacts.php")
         .then(res => res.text())
@@ -55,6 +57,9 @@ while ($row = mysqli_fetch_assoc($rscheck)) {
             if (list.dataset.last !== data) {
                 list.innerHTML = data;
                 list.dataset.last = data;
+            }
+             if (sidebarLocked) {
+                document.querySelector(".sidebar").classList.add("hidden");
             }
         });
 }
