@@ -10,7 +10,6 @@ include("header.php");
   <div class="container-fluid d-flex ">
     <form class="d-flex search-form justify-content-center" onsubmit="return false;">
       <input class="form-control me-2" type="search" id="txtSearch" placeholder="Search" aria-label="Search" onkeyup="loadData();">
-      <button class="btn btn-outline-success" type="button" onclick="loadData();">Search</button>
     </form>
   </div>
 </nav>

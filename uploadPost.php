@@ -55,6 +55,6 @@ mysqli_query($con, $query);
 
 
 // ---------- 6. REDIRECT ----------
-header("Location: userChat.php");
+header("Location: userProfile.php");
 exit;
 ?>

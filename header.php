@@ -72,8 +72,8 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         else if($utype=='user'){
           echo("
             <li class='nav-item'>
-              <a class='nav-link cool-link ".($currentPage=='postPage.php'?'active-link':'')."' 
-              href='postPage.php'>Add Post</a>
+              <a class='nav-link cool-link ".($currentPage=='feedPage.php'?'active-link':'')."' 
+              href='feedPage.php'>Feed</a>
             </li>
 
             <li class='nav-item position-relative'>
@@ -99,7 +99,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
             <li class='nav-item'>
               <a class='nav-link cool-link ".($currentPage=='userProfile.php'?'active-link':'')."' 
-              href='userProfile.php'>User</a>
+              href='userProfile.php'>You</a>
             </li>
 
             <li class='nav-item'>

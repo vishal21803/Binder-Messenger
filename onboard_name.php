@@ -5,15 +5,16 @@ if(isset($_SESSION["uname"]) && $_SESSION["utype"]=='user')
 include("header.php");
 ?>
 
-<main>
+<main class="name-container">
+    <form action="save_name.php" method="post" class="name-box">
+        <h2>Welcome 👋</h2>
+        <p class="sub-text">Please enter your full name to continue</p>
 
-<form action="save_name.php" method="post">
-    <h2>Welcome! Enter your full name</h2>
-    <input type="text" name="fullname" required>
-    <button type="submit">Next</button>
-</form>
+        <input type="text" name="fullname" required placeholder="Enter full name">
+
+        <button type="submit">Next ➜</button>
+    </form>
 </main>
-
 
 
 

@@ -4,17 +4,25 @@ if(isset($_SESSION["uname"]) && $_SESSION["utype"]=='user')
 {
 include("header.php");
 ?>
-
-<main>
+<main class="dp-container">
 <?php @session_start(); ?>
 
-<form action="save_dp.php" method="post" enctype="multipart/form-data">
-    <h2>Upload Profile Photo</h2>
-    <input type="file" name="dp" accept="image/*" >
-    <button type="submit">Finish</button>
-</form>
+    <form action="save_website.php" method="post" class="dp-box">
+        
+        <h2>Add Your Website 🌐</h2>
+        <p class="dp-sub">Share your personal or portfolio website</p>
+
+        <!-- Website Input -->
+        <div class="input-group">
+            <label>Your Website URL</label>
+            <input type="url" name="website" placeholder="https://yourwebsite.com" >
+        </div>
+
+        <button type="submit">Finish ✔</button>
+    </form>
 
 </main>
+
 
 
 

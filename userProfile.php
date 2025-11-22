@@ -61,10 +61,119 @@ while($row5=mysqli_fetch_array($rsCount)){
 			<div class="profile-user-settings">
 				<h1 class="profile-user-name"><?php echo $uname ?></h1>
 				<a class="btn profile-edit-btn" href="editProfile.php">Edit Profile</a>
+
+            <a class="btn profile-add-post-btn"  data-bs-toggle="modal" data-bs-target="#myPost">Add Post</a>
+
+            <!-- The Modal -->
+<div class="modal fade" id="myPost">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+     
+
+      <!-- Modal body -->
+      <div class="modal-body">
+         <form id="postform" class="addpost-container" action="uploadPost.php" method="POST" enctype="multipart/form-data">
+  
+  <div class="addpost-card">
+
+    <h2 class="heading">Create New Post</h2>
+
+    <!-- Image Upload Section -->
+    <div class="upload-box" id="uploadBox">
+      <input type="file" id="postFile" name="postFile" accept="image/*" required>
+      <div class="upload-hint">Click to upload image</div>
+      <img id="previewImg" class="preview-img" />
+    </div>
+
+    <!-- Caption -->
+    <div class="field">
+      <label>Caption</label>
+      <textarea id="caption" name="caption" placeholder="Write a caption..." required></textarea>
+    </div>
+
+    <!-- Tags -->
+    <div class="field">
+      <label>Tags</label>
+      <input type="text" id="tags" name="tags" placeholder="#travel #friends #sunset" />
+    </div>
+
+    <!-- Location -->
+    <div class="field">
+      <label>Location</label>
+      <input type="text" id="location" name="location" placeholder="Add location" />
+    </div>
+
+    <!-- Filters -->
+    <input type="hidden" name="filter" id="selectedFilter" value="none">
+
+    <div class="filter-section">
+      <h3>Filters</h3>
+      <div class="filter-options" id="filters">
+        <!-- BASIC FILTERS -->
+    <div class="filter-item " data-filter="none">Original</div>
+    <div class="filter-item" data-filter="grayscale(1)">B&W</div>
+    <div class="filter-item" data-filter="sepia(0.8)">Sepia</div>
+    <div class="filter-item" data-filter="invert(1)">Invert</div>
+
+    <!-- BRIGHTNESS / CONTRAST -->
+    <div class="filter-item" data-filter="brightness(1.2)">Bright</div>
+    <div class="filter-item" data-filter="brightness(0.8)">Dim</div>
+    <div class="filter-item" data-filter="contrast(1.3)">Contrast+</div>
+    <div class="filter-item" data-filter="contrast(0.8)">Contrast-</div>
+
+    <!-- COLOR POP / VIBRANT -->
+    <div class="filter-item" data-filter="saturate(1.5)">Vibrant</div>
+    <div class="filter-item" data-filter="saturate(2)">Color Pop</div>
+    <div class="filter-item" data-filter="saturate(0)">Desaturate</div>
+
+    <!-- WARM / COOL -->
+    <div class="filter-item" data-filter="sepia(0.3) brightness(1.1)">Warm</div>
+    <div class="filter-item" data-filter="brightness(1.1) saturate(1.3)">Sunny</div>
+    <div class="filter-item" data-filter="hue-rotate(20deg)">Warm Tone</div>
+    <div class="filter-item" data-filter="hue-rotate(200deg)">Cool Tone</div>
+
+    <!-- INSTAGRAM-INSPIRED EFFECTS -->
+    <div class="filter-item" data-filter="brightness(1.1) contrast(1.2) saturate(1.2)">Clarendon</div>
+    <div class="filter-item" data-filter="brightness(1.1) saturate(1.3)">Juno</div>
+    <div class="filter-item" data-filter="brightness(1.2) saturate(1.1)">Lark</div>
+    <div class="filter-item" data-filter="contrast(1.1) sepia(0.2)">Gingham</div>
+    <div class="filter-item" data-filter="brightness(0.9) sepia(0.4)">Retro</div>
+
+    <!-- DARK / MOODY -->
+    <div class="filter-item" data-filter="brightness(0.7) contrast(1.3)">Moody</div>
+    <div class="filter-item" data-filter="brightness(0.6) contrast(1.4) saturate(0.8)">Dark Fade</div>
+
+    <!-- CARTOON / FUN -->
+    <div class="filter-item" data-filter="contrast(1.5) saturate(1.8)">Cartoonify</div>
+    <div class="filter-item" data-filter="grayscale(0.5) sepia(0.2)">Vintage</div>
+      </div>
+    </div>
+<canvas id="finalCanvas" style="display:none;"></canvas>
+<input type="hidden" name="editedImage" id="editedImage">
+
+    <!-- Upload Button -->
+    <button class="post-btn" type="submit" id="submitPostBtn">Post</button>
+
+  </div>
+
+</form>
+
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
 			</div>
 
 			<div class="profile-stats">
 				<ul>
+          <br>
 					<li><span class="profile-stat-count"><?php echo($pcount);?></span> posts</li>
 					<li><a style="text-decoration:none; color:#322627;" href="userFollower.php"><span class="profile-stat-count"><?php echo $count2 ?></span> followers</a></li>
 					<li><a style="text-decoration:none; color:#322627;" href="userFollowing.php"><span class="profile-stat-count"><?php echo $count ?></span> following</a></li>
@@ -72,7 +181,9 @@ while($row5=mysqli_fetch_array($rsCount)){
 			</div>
 
 			<div class="profile-bio">
-				<p><span class="profile-real-name"><?php echo $fullname ?></span> <?php echo $bio ?></p>
+				<p><span class="profile-real-name"><?php echo $fullname ?></span> 
+        <br>
+        <?php echo $bio ?></p>
 			</div>
 
 		</div>
@@ -87,6 +198,8 @@ while($row5=mysqli_fetch_array($rsCount)){
 		<div class="gallery">
 
 <?php
+date_default_timezone_set('Asia/Kolkata'); // or 'Asia/Kolkata' etc.
+
 function timeAgo($time){
     $timestamp = strtotime($time);
     $current = time();
@@ -107,105 +220,135 @@ function timeAgo($time){
     // If older than 7 days → show actual date
     return date("d M Y", $timestamp);
 }
-$rspost = mysqli_query($con,"SELECT * FROM post_info WHERE uid='$uid' ORDER BY post_time DESC");
 
-while($row=mysqli_fetch_array($rspost)){
-     
-    $postimg = $row["post_img"];
-    $caption = $row["caption"];
-    $pid     = $row["pid"];
-    $postime=  timeAgo($row["post_time"]);
+include("connectdb.php");
+date_default_timezone_set('Asia/Kolkata'); // or 'Asia/Kolkata' etc.
 
-    // Count likes
-    $likes = mysqli_num_rows(mysqli_query($con,"SELECT * FROM post_likes WHERE post_id='$pid'"));
+if(isset($_SESSION["uname"]) && isset($_SESSION["uid"]) ){
+  $uname=$_SESSION["uname"];
+  $uid=$_SESSION["uid"];
+ 
+     $rs2=mysqli_query($con,"select * from post_info p,user_info u where p.uid='$uid' and u.uid='$uid' order by post_time desc");
 
-        $commentCount = mysqli_num_rows(mysqli_query($con, "SELECT * FROM post_comments WHERE post_id='$pid'"));
+     while($row2=mysqli_fetch_array($rs2)){
+      $img=$row2["post_img"];
+      $caption=$row2["caption"];
+      $tags=$row2["tags"];
+      $location=$row2["location"];
+      $fname=$row2["uname"];
+      $pimg=$row2["ufile"];
+      $ptime= timeAgo( $row2["post_time"]);
+      $pid=$row2["pid"];
 
-    // user liked?
+               $likes = mysqli_num_rows(mysqli_query($con,"SELECT * FROM post_likes WHERE post_id='$pid'"));
+                   $commentCount = mysqli_num_rows(mysqli_query($con, "SELECT * FROM post_comments WHERE post_id='$pid'"));
+
     $userLiked = mysqli_num_rows(mysqli_query($con,"
         SELECT * FROM post_likes WHERE uid='$uid' AND post_id='$pid'
     ")) > 0;
 
     $likeIcon = $userLiked ? "❤️" : "🤍";
 
+
+
     // UNIQUE MODAL ID
-    $modalID = "postModal_" . $pid;
 
 echo "
 <!-- Thumbnail -->
-<a data-bs-toggle='modal' data-bs-target='#$modalID'>
+<a data-bs-toggle='modal' data-bs-target='#myModal_$pid'>
     <div class='gallery-item'>
-        <img src='uploads/$postimg' class='gallery-image'>
+        <img src='uploads/$img' class='gallery-image'>
         <div class='gallery-item-info'>
             <ul>
             <li class='gallery-item-likes' id='galleryLikes_$pid'>
-    <i class='bi bi-heart-fill'></i> $likes
+    <i class='bi bi-heart-fill'></i> $likes &nbsp;&nbsp;&nbsp;
+</li>
+  <li class='gallery-item-comment' id='galleryComment_$pid'>
+    <i class='bi bi-chat-fill'></i> $commentCount
 </li>
 
             </ul>
         </div>
     </div>
 </a>
+";
 
-<!-- FULL POST MODAL -->
-<div class='modal fade' id='$modalID'>
-    <div class='modal-dialog modal-dialog-centered'>
-        <div class='modal-content'>
+
+ echo "
+
+ <div class='modal fade' id='myModal_$pid'>
+  <div class='modal-dialog modal-fullscreen modal-dialog-centered'>
+      <div class='feed-container ' >
+<div class='modal-content' style='background:transparent;'>
+   <div class='modal-body'>
+
+    <!-- MAIN FEED -->
+    <div class='feed-wrapper ' >
+
+        <!-- Example Post -->
+        <div class='post-card'>
+
+            <!-- Post Header -->
+            <div class='post-user'>
+                <img src='uploads/$pimg' class='user-img'>
+                <div>
+                    <h4 class='user-name'>$fname</h4>
+                    <p class='post-time'>$ptime</p>
+                </div>
+            </div>
+
+            <!-- Post Image -->
+            <div class='post-image'>
+                <img src='uploads/$img'>
+            </div>
+
+            <!-- Post Actions -->
+            <div class='post-actions'>
+                        <span class='like-btn' id='like_$pid' onclick='likePost($pid)'>$likeIcon</span>
+                <i class='bi bi-chat' onclick='toggleComments($pid)'></i>
+            </div>
+
+            <!-- Likes -->
+            <p class='likes-count' id='likesCount_$pid'>$likes likes</p>
+
+            <!-- Caption -->
+            <div class='post-caption'>
+                <b>$fname</b> $caption
+            </div>
+
+            <!-- View Comments -->
+            <div class='view-comments' id='commentCount_$pid' onclick='toggleComments($pid)'>
+               $commentCount comments
             
-            <div class='modal-body'>
-                <div class='post-card'>
+            </div>
+ <div id='commentBox_$pid' class='comment-list' style='display:none;'></div>
 
-                    <div class='post-header'>
-                        <img src='uploads/$dp'>
-                        <div>
-                            <div class='post-username'>$uname</div>
-                            <div class='post-time'>$postime</div>
-                        </div>
-                    </div>
 
-                    <img src='uploads/$postimg' class='post-img'>
-
-                    <div class='post-body'>
-
-                        <!-- LIKE BUTTON -->
-                        <span class='like-btn' 
-                              id='like_$pid'
-                              onclick='likePost($pid)'>
-                              $likeIcon
-                        </span>
-
-                        <!-- LIKE COUNT -->
-                        <div class='likes' id='likesCount_$pid'>$likes Likes</div>
-
-                        <div class='caption'><b>$uname</b> $caption</div>
-
-                        <!-- Comments list -->
-<div id='commentBox_$pid' class='comment-list'></div>
-
-<!-- Comment input -->
-<div class='comment-input'>
+            <div class='comment-input'>
   <input type='text' id='commentInput_$pid' placeholder='Add a comment...'>
   <button type='button' onclick='addComment($pid)'>Post</button>
 </div>
 
-<!-- Comment count element (to update) -->
-<div id='commentCount_$pid'>$commentCount comments</div>
-
-                    </div>
-
-                </div>
-            </div>
-
-            <div class='modal-footer'>
-                <button class='btn btn-danger' data-bs-dismiss='modal'>Close</button>
-            </div>
+</div>
 
         </div>
+
     </div>
 </div>
+</div>
+</div>
+</div>
 ";
-}
+
+
+     }
+   }
+  
+
+
+
 ?>
+
 		</div>
 	</div>
 </main>
@@ -313,6 +456,99 @@ document.addEventListener('DOMContentLoaded', () => {
     if(pid) loadComments(pid);
   });
 });
+
+// === ELEMENTS ===
+const fileInput = document.getElementById("postFile");
+const uploadBox = document.getElementById("uploadBox");
+const previewImg = document.getElementById("previewImg");
+const filterItems = document.querySelectorAll(".filter-item");
+const selectedFilter = document.getElementById("selectedFilter");
+const postForm = document.getElementById("postform");
+
+// CANVAS ELEMENTS
+const finalCanvas = document.getElementById("finalCanvas");
+const editedImageInput = document.getElementById("editedImage");
+
+// === CLICK TO OPEN FILE PICKER ===
+uploadBox.addEventListener("click", () => {
+    fileInput.click();
+});
+
+// === PREVIEW IMAGE ===
+fileInput.addEventListener("change", () => {
+    if (fileInput.files && fileInput.files[0]) {
+        let reader = new FileReader();
+        reader.onload = function (e) {
+            previewImg.src = e.target.result;
+            previewImg.style.display = "block";
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+    }
+});
+
+// === FILTER SELECTION ===
+filterItems.forEach(item => {
+    item.addEventListener("click", function () {
+
+        // remove active class
+        filterItems.forEach(f => f.classList.remove("active"));
+        this.classList.add("active");
+
+        // apply filter to preview image
+        const filterValue = this.getAttribute("data-filter");
+        previewImg.style.filter = filterValue;
+
+        // save for PHP
+        selectedFilter.value = filterValue;
+    });
+});
+
+// === BEFORE FORM SUBMIT -> MAKE FILTER PERMANENT ===
+postForm.addEventListener("submit", function (e) {
+    e.preventDefault(); // stop for processing
+
+    if (!fileInput.files[0]) {
+        alert("Please select an image");
+        return;
+    }
+
+    const filter = selectedFilter.value;
+    const img = previewImg;
+    const canvas = finalCanvas;
+    const ctx = canvas.getContext("2d");
+
+    // set canvas size
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+
+    // apply filter permanently
+    ctx.filter = filter;
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    // convert canvas → base64
+    const finalImgURL = canvas.toDataURL("image/png");
+    editedImageInput.value = finalImgURL;
+
+    this.submit(); // submit to PHP now
+});
+
+function toggleComments(postId){
+    const box = document.getElementById("commentBox_" + postId);
+
+    // If hidden → show + load comments
+    if(box.style.display === "none" || box.style.display === ""){
+        box.style.display = "block";
+
+        // Only load comments if empty (avoid loading again)
+        if(box.innerHTML.trim() === ""){
+            loadComments(postId);
+        }
+
+    } else {
+        // Hide comment section
+        box.style.display = "none";
+    }
+}
 
 
 </script>

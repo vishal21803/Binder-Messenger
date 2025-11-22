@@ -25,7 +25,7 @@
         if($row["utype"]=='user'){
             
             $_SESSION['utype']='user';
-            header("location:userChat.php");
+            header("location:feedPage.php");
         }
 
         elseif($row["utype"]=='admin'){

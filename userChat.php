@@ -215,6 +215,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const blockBtn = document.getElementById('blockbtn');
     const msgInput = document.getElementById('msgInput');
     const emojiBtn = document.getElementById('emojiBtn');
+    const gifBtn = document.getElementById('gifBtn');
+    const stickerBtn = document.getElementById('stickerBtn');
+    const fileBtn = document.getElementById('fileBtn');
+
 
     if (!blockBtn || !msgInput) return;
 
@@ -224,6 +228,10 @@ if ($isBlockedByMe) {
         blockBtn.textContent = 'Unblock';
         msgInput.disabled = true;
         emojiBtn.disabled = true;
+        gifBtn.disabled = true;
+        stickerBtn.disabled = true;
+        fileBtn.disabled=true;
+
         msgInput.placeholder = 'You blocked this user';
     ";
 }
@@ -232,6 +240,10 @@ if ($isBlockedByOther) {
         blockBtn.style.display = 'none';
         msgInput.disabled = true;
         emojiBtn.disabled = true;
+        gifBtn.disabled = true;
+        stickerBtn.disabled = true;
+        fileBtn.disabled=true;
+
         msgInput.placeholder = 'You are blocked by this user';
     ";
 }
@@ -342,11 +354,17 @@ document.addEventListener("DOMContentLoaded", function() {
                     blockBtn.textContent = "Unblock";
                     msgInput.disabled = true;
                     emojiBtn.disabled = true;
+                    gifBtn.disabled = true;
+                    stickerBtn.disabled = true;
+                    fileBtn.disabled=true;
                     msgInput.placeholder = "You blocked this user";
                 } else {
                     blockBtn.textContent = "Block";
                     msgInput.disabled = false;
                     emojiBtn.disabled = false;
+                    gifBtn.disabled = false;
+                    stickerBtn.disabled = false;
+                    fileBtn.disabled=false;
                     msgInput.placeholder = "Type a message...";
                 }
             });

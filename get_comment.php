@@ -32,7 +32,7 @@ $q = "SELECT pc.comment, pc.created_at, u.uname
       FROM post_comments pc
       JOIN user_info u ON u.uid = pc.uid
       WHERE pc.post_id = '$post_id'
-      ORDER BY pc.id ASC";
+      ORDER BY pc.id desc";
 
 $res = mysqli_query($con, $q);
 $out = "";

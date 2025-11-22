@@ -111,6 +111,8 @@ if(mysqli_num_rows($checkFollow) > 0){
 				<h1 class="profile-user-name"><?php echo $u ?></h1>
         <!-- FOLLOW BUTTON AREA -->
 <div class="profile-actions">
+    <div class="profile-req-wrapper">
+
 <?php
 
 $check = mysqli_query($con,
@@ -136,6 +138,7 @@ if (mysqli_num_rows($check) > 0) {
 
 ?>
 </div>
+</div>
 
 			</div>
 
@@ -148,7 +151,10 @@ if (mysqli_num_rows($check) > 0) {
 			</div>
 
 			<div class="profile-bio">
-				<p><span class="profile-real-name"><?php echo $fullname ?></span> <?php echo $bio ?></p>
+				<p><span class="profile-real-name"><?php echo $fullname ?></span>
+                 <br>
+                  <?php echo $bio ?>
+                </p>
 			</div>
 
 		</div>
@@ -157,99 +163,145 @@ if (mysqli_num_rows($check) > 0) {
 
 <!-- MAIN GALLERY -->
 <main>
-    <div class="container">
+	<div class="container">
 
-<?php if($isFollowing) { ?> 
-
-        <!-- SHOW POSTS ONLY IF FOLLOWING -->
-        <div class="gallery">
+		<div class="gallery">
 
 <?php
-$rspost = mysqli_query($con,"SELECT * FROM post_info WHERE uid='$oid' ORDER BY post_time DESC");
+date_default_timezone_set('Asia/Kolkata'); // or 'Asia/Kolkata' etc.
 
-while($row=mysqli_fetch_array($rspost)){
 
-    $postimg = $row["post_img"];
-    $caption = $row["caption"];
-    $pid     = $row["pid"];
-    $postime=  timeAgo($row["post_time"]);
 
-    // Count likes
-    $likes = mysqli_num_rows(mysqli_query($con,"SELECT * FROM post_likes WHERE post_id='$pid'"));
-    $commentCount = mysqli_num_rows(mysqli_query($con, "SELECT * FROM post_comments WHERE post_id='$pid'"));
+include("connectdb.php");
+date_default_timezone_set('Asia/Kolkata'); // or 'Asia/Kolkata' etc.
+
+if(isset($_SESSION["uname"]) && isset($_SESSION["uid"]) ){
+  $uname=$_SESSION["uname"];
+  $uid=$_SESSION["uid"];
+ 
+     $rs2=mysqli_query($con,"select * from post_info p,user_info u where p.uid='$oid' and u.uid='$oid' order by post_time desc");
+
+     while($row2=mysqli_fetch_array($rs2)){
+      $img=$row2["post_img"];
+      $caption=$row2["caption"];
+      $tags=$row2["tags"];
+      $location=$row2["location"];
+      $fname=$row2["uname"];
+      $pimg=$row2["ufile"];
+      $ptime= timeAgo( $row2["post_time"]);
+      $pid=$row2["pid"];
+
+               $likes = mysqli_num_rows(mysqli_query($con,"SELECT * FROM post_likes WHERE post_id='$pid'"));
+                   $commentCount = mysqli_num_rows(mysqli_query($con, "SELECT * FROM post_comments WHERE post_id='$pid'"));
 
     $userLiked = mysqli_num_rows(mysqli_query($con,"
-        SELECT * FROM post_likes WHERE uid='$uid' AND post_id='$pid'
+        SELECT * FROM post_likes WHERE uid='$oid' AND post_id='$pid'
     ")) > 0;
 
     $likeIcon = $userLiked ? "❤️" : "🤍";
-    $modalID = "postModal_" . $pid;
+
+
+
+    // UNIQUE MODAL ID
 
 echo "
-<a data-bs-toggle='modal' data-bs-target='#$modalID'>
+<!-- Thumbnail -->
+<a data-bs-toggle='modal' data-bs-target='#myModal_$pid'>
     <div class='gallery-item'>
-        <img src='uploads/$postimg' class='gallery-image'>
+        <img src='uploads/$img' class='gallery-image'>
         <div class='gallery-item-info'>
             <ul>
             <li class='gallery-item-likes' id='galleryLikes_$pid'>
-                <i class='bi bi-heart-fill'></i> $likes
-            </li>
+    <i class='bi bi-heart-fill'></i> $likes &nbsp;&nbsp;&nbsp;
+</li>
+  <li class='gallery-item-comment' id='galleryComment_$pid'>
+    <i class='bi bi-chat-fill'></i> $commentCount
+</li>
+
             </ul>
         </div>
     </div>
 </a>
+";
 
-<div class='modal fade' id='$modalID'>
-    <div class='modal-dialog modal-dialog-centered'>
-        <div class='modal-content'>
-            <div class='modal-body'>
-                <div class='post-card'>
-                    <div class='post-header'>
-                        <img src='uploads/$dp'>
-                        <div>
-                            <div class='post-username'>$u</div>
-                            <div class='post-time'>$postime</div>
-                        </div>
-                    </div>
-                    <img src='uploads/$postimg' class='post-img'>
-                    <div class='post-body'>
-                        <span class='like-btn' id='like_$pid' onclick='likePost($pid)'>$likeIcon</span>
-                        <div class='likes' id='likesCount_$pid'>$likes Likes</div>
-                        <div class='caption'><b>$u</b> $caption</div>
 
-                        <div id='commentBox_$pid' class='comment-list'></div>
-                        <div class='comment-input'>
-                            <input type='text' id='commentInput_$pid' placeholder='Add a comment...'>
-                            <button type='button' onclick='addComment($pid)'>Post</button>
-                        </div>
-                        <div id='commentCount_$pid'>$commentCount comments</div>
+ echo "
 
-                    </div>
+ <div class='modal fade' id='myModal_$pid'>
+  <div class='modal-dialog modal-fullscreen modal-dialog-centered'>
+      <div class='feed-container ' >
+<div class='modal-content' style='background:transparent;'>
+   <div class='modal-body'>
+
+    <!-- MAIN FEED -->
+    <div class='feed-wrapper ' >
+
+        <!-- Example Post -->
+        <div class='post-card'>
+
+            <!-- Post Header -->
+            <div class='post-user'>
+                <img src='uploads/$pimg' class='user-img'>
+                <div>
+                    <h4 class='user-name'>$fname</h4>
+                    <p class='post-time'>$ptime</p>
                 </div>
             </div>
-            <div class='modal-footer'>
-                <button class='btn btn-danger' data-bs-dismiss='modal'>Close</button>
+
+            <!-- Post Image -->
+            <div class='post-image'>
+                <img src='uploads/$img'>
             </div>
+
+            <!-- Post Actions -->
+            <div class='post-actions'>
+                        <span class='like-btn' id='like_$pid' onclick='likePost($pid)'>$likeIcon</span>
+                <i class='bi bi-chat' onclick='toggleComments($pid)'></i>
+            </div>
+
+            <!-- Likes -->
+            <p class='likes-count' id='likesCount_$pid'>$likes likes</p>
+
+            <!-- Caption -->
+            <div class='post-caption'>
+                <b>$fname</b> $caption
+            </div>
+
+            <!-- View Comments -->
+            <div class='view-comments' id='commentCount_$pid' onclick='toggleComments($pid)'>
+               $commentCount comments
+            
+            </div>
+ <div id='commentBox_$pid' class='comment-list' style='display:none;'></div>
+
+
+            <div class='comment-input'>
+  <input type='text' id='commentInput_$pid' placeholder='Add a comment...'>
+  <button type='button' onclick='addComment($pid)'>Post</button>
+</div>
+
+</div>
+
         </div>
+
     </div>
 </div>
+</div>
+</div>
+</div>
 ";
-}
+
+
+     }
+   }
+  
+
+
+
 ?>
-        </div>
 
-<?php } else { ?> 
-
-        <!-- PRIVATE ACCOUNT MESSAGE -->
-        <div class="private-box">
-            <img src="img/private.png" class="private-icon">
-            <h2>This Account is Private</h2>
-            <p>Follow to see photos and videos.</p>
-        </div>
-
-<?php } ?>
-
-    </div>
+		</div>
+	</div>
 </main>
 
 
@@ -431,6 +483,26 @@ $(document).on("click", ".reqBtn", function() {
         }
     });
 });
+
+
+function toggleComments(postId){
+    const box = document.getElementById("commentBox_" + postId);
+
+    // If hidden → show + load comments
+    if(box.style.display === "none" || box.style.display === ""){
+        box.style.display = "block";
+
+        // Only load comments if empty (avoid loading again)
+        if(box.innerHTML.trim() === ""){
+            loadComments(postId);
+        }
+
+    } else {
+        // Hide comment section
+        box.style.display = "none";
+    }
+}
+
 </script>
 
 <?php include("footer.php"); } else { include("index.php"); } ?>
