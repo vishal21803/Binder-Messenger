@@ -166,6 +166,22 @@ if (mysqli_num_rows($check) > 0) {
 	<div class="container">
 
 		<div class="gallery">
+            <?php 
+// SHOW PRIVATE MESSAGE IF NOT FOLLOWING
+if(!$isFollowing && $uid != $oid){
+?>
+    <div class="private-box">
+        <h2>This Account is Private 🔒</h2>
+        <p>Follow to see their photos and videos.</p>
+    </div>
+<?php
+    // DO NOT SHOW POSTS
+    $showPosts = false;
+} else {
+    $showPosts = true;
+}
+?>
+
 
 <?php
 date_default_timezone_set('Asia/Kolkata'); // or 'Asia/Kolkata' etc.
@@ -181,7 +197,9 @@ if(isset($_SESSION["uname"]) && isset($_SESSION["uid"]) ){
  
      $rs2=mysqli_query($con,"select * from post_info p,user_info u where p.uid='$oid' and u.uid='$oid' order by post_time desc");
 
-     while($row2=mysqli_fetch_array($rs2)){
+    if($showPosts){
+    while($row2=mysqli_fetch_array($rs2)){
+
       $img=$row2["post_img"];
       $caption=$row2["caption"];
       $tags=$row2["tags"];
@@ -295,7 +313,7 @@ echo "
      }
    }
   
-
+}
 
 
 ?>

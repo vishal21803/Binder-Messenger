@@ -35,6 +35,20 @@ if(isset($_SESSION["uname"]) && isset($_SESSION["uid"]) ){
   $uname=$_SESSION["uname"];
   $uid=$_SESSION["uid"];
   $rs1=mysqli_query($con,"select uid from request_info  where rstatus='accepted' and remail='$uname' ");
+  $followingCount = mysqli_num_rows($rs1);
+
+if ($followingCount == 0) {
+    echo "
+    <div class='no-follow-box'>
+        <h2>You are not following anyone yet 👀</h2>
+        <p>Start following friends to see their posts in your feed.</p>
+        <a href='searchFriend.php' class='follow-btn'>Search Friends</a>
+        <br><br>
+    </div>";
+
+    include("footer.php");
+    exit;
+}
    while($row=mysqli_fetch_array($rs1)){
      $feedid=$row["uid"];
 

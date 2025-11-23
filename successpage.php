@@ -5,12 +5,14 @@ include("header.php")
 
 <main>
 <div id="successTitle">
-         <h1 id="sth1">Your Account hass Been Created </h1>
+    <div class="success-box">
+        <h1>Your Account Has Been Created 🎉</h1>
+        <p>You can <a href="loginForm.php">login</a> now</p>
+        <div class="success-icon">✔</div>
+    </div>
+</div>
 
-            <h3 id="sth2">You can  <a href="loginForm.php" style="text-decoration:underline;">Login</a> Now✅</h3>
-            </div>
 </main>
-
 
 
 

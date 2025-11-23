@@ -11,6 +11,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emoji-mart@latest/css/emoji-mart.css" />
+<link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" />
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <link rel="stylesheet" href="./bootstrap.min.css">
@@ -115,10 +116,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             href='loginForm.php'>Login</a>
           </li>
 
-          <li class='nav-item'>
-            <a class='nav-link cool-link ".($currentPage=='regisForm.php'?'active-link':'')."' 
-            href='regisForm.php'>Register</a>
-          </li>
+       
         ");
       }
       ?>
