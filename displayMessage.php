@@ -46,7 +46,7 @@ while ($row = mysqli_fetch_assoc($rschat)) {
 
     echo "<div class='message ".($isMe ? "right" : "left")."'>";
 
-    echo "<div class='msg-wrapper'>";
+echo "<div class='msg-wrapper ".($isMe ? "sent" : "received")."'>";
 
     /* ------------------------------
        TEXT MESSAGE

@@ -205,8 +205,7 @@ body{
     <!-- MAIN: forms -->
     <div class="authx-main">
       <div class="authx-hero">
-        <h1 class="authx-title">Welcome to Binder — AuthX</h1>
-        <p class="authx-sub">Fast, private and delightful sign in / sign up experience. Use the right panel to learn steps.</p>
+        <h1 class="authx-title">Welcome to Binder</h1>
       </div>
 
       <div class="authx-formpane">
@@ -236,11 +235,11 @@ body{
         <!-- SIGN UP -->
         <form class="authx-form" action="insertUser.php" method="post" id="authx-signup-form" style="display:none;">
           <h3>Create account</h3>
-          <p class="help">Start by telling us your full name.</p>
+          <!-- <p class="help">Start by telling us your full name.</p> -->
 
           <div class="authx-field">
             <label for="authx-fullname">Username</label>
-            <input id="authx-fullname" name="uname" placeholder="" required />
+            <input id="authx-fullname" name="uname" placeholder="Create new Username" required />
               <small id="authx-username-error" class="authx-error"></small>
 
           </div>
@@ -254,7 +253,7 @@ body{
             
          <div  class="authx-field">
               <label for="authx-email">Age</label>
-              <input id="authx-email" name="uage" type="number" placeholder="" required />
+              <input id="authx-email" name="uage" type="number" placeholder="Enter your age" required />
                 <small id="authx-email-error" class="authx-error"></small>
 
             </div>
@@ -286,9 +285,9 @@ body{
             <button type="button" class="authx-btn ghost" id="authx-show-signin">Already have an account</button>
           </div>
 
-          <div class="authx-foot">
+          <!-- <div class="authx-foot">
             <span class="authx-small">By creating an account you agree to our <a href="#" style="color: #fff; text-decoration:underline;">Terms</a>.</span>
-          </div>
+          </div> -->
         </form>
 
       </div>

@@ -375,6 +375,18 @@ main{
   box-shadow: 0 10px 30px rgba(3,6,17,0.6);
   padding:6px;
 }
+/* sender (right message) */
+.msg-wrapper.sent .dropdown-menu {
+  right: 0;
+  left: auto;
+}
+
+/* receiver (left message) */
+.msg-wrapper.received .dropdown-menu {
+  left: 0;
+  right: auto;
+}
+
 .dropdown-menu.show { display:flex; flex-direction:column; animation:fadeIn .12s ease; }
 .dropdown-menu a { padding:8px 10px; text-decoration:none; color:#e6eef6; border-radius:6px; }
 .dropdown-menu a:hover { background: rgba(255,255,255,0.03); }
@@ -675,10 +687,16 @@ img {
 .profile-edit-btn {
     font-size: 1.4rem;
     line-height: 1.8;
-    border: 0.1rem solid #dbdbdb;
     border-radius: 0.3rem;
     padding: 0 2.4rem;
     margin-left: 2rem;
+    background: transparent;
+    color: white;
+}
+.profile-edit-btn:hover {
+ 
+    background: transparent;
+    color: rgb(0, 0, 0);
 }
 
 .profile-settings-btn {
@@ -956,15 +974,44 @@ height: 90px;
 border-radius: 50%;
 object-fit: cover;
 border: 3px solid #e0e0e0;
+margin-left: 680px;
 }
 
 
 .header button {
-background: transparent;
 border: none;
-color: #0095f6;
+color: #ffffff;
 cursor: pointer;
 font-size: 14px;
+margin-left: 650px;
+
+}
+.header h3{
+  margin-left: 700px;
+}
+
+@media (max-width:576px){
+  .header img {
+width: 90px;
+height: 90px;
+border-radius: 50%;
+object-fit: cover;
+border: 3px solid #e0e0e0;
+margin-left: 180px;
+}
+
+
+.header button {
+border: none;
+color: #ffffff;
+cursor: pointer;
+font-size: 14px;
+margin-left: 150px;
+
+}
+.header h3{
+  margin-left: 200px;
+}
 }
 
 
@@ -1120,7 +1167,7 @@ width: 100%;
     background:var(--accent);
     color:#fff;
     border:none;
-    padding:8px 12px;
+    padding:10px 12px;
     border-radius:8px;
     cursor:pointer;
   }
@@ -1847,11 +1894,15 @@ textarea {
   box-shadow: 0 0 10px rgba(255,255,255,0.3);
   transition: 0.3s ease;
 }
-
 .profile-add-post-btn {
     margin-left: 10px;
-    padding: 8px 16px;
     background-color: #4a90e2;
+    padding-left: 45px;
+    padding-top: 20px;
+    padding-right: 40px;
+    padding-bottom: 20px;
+    width: 50px;
+    height: 50px;
     color: white !important;
     border-radius: 4px;
     font-size: 14px;
@@ -1860,7 +1911,23 @@ textarea {
 }
 
 .profile-add-post-btn:hover {
-    background-color: #3576c9;
+    background-color: #172331;
+}
+@media (max-width:576px){
+.profile-add-post-btn {
+    margin-left: 10px;
+    background-color: #4a90e2;
+    line-height: 50px;
+    color: white !important;
+    border-radius: 4px;
+    font-size: 14px;
+    text-decoration: none;
+    transition: 0.2s ease-in-out;
+}
+
+.profile-add-post-btn:hover {
+    background-color: #172331;
+}
 }
 /* FEED CONTAINER */
 .feed-container {
@@ -2774,3 +2841,83 @@ textarea {
     margin-bottom: 20px;
 }
 
+.edit-box {
+  width: 100%;
+  max-width: 480px;
+  margin: 25px auto;
+  padding: 22px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+  box-sizing: border-box;
+}
+
+.edit-title {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #222;
+}
+
+.edit-box label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-top: 12px;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.input-field {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 15px;
+  background: #f8f8f8;
+  transition: 0.2s ease;
+}
+
+.input-field:focus {
+  border-color: #4A90E2;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(74,144,226,0.12);
+  outline: none;
+}
+
+.textarea-field {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.save-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  box-shadow: 0 3px 12px rgba(74,144,226,0.3);
+}
+
+.save-btn:hover {
+  background: #3a7ac7;
+  transform: translateY(-2px);
+}
+
+/* 📱 Mobile responsive */
+@media (max-width: 480px) {
+  .edit-box {
+    padding: 18px;
+    margin: 15px;
+  }
+
+  .save-btn {
+    padding: 12px;
+  }
+}

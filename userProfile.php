@@ -60,9 +60,9 @@ while($row5=mysqli_fetch_array($rsCount)){
 
 			<div class="profile-user-settings">
 				<h1 class="profile-user-name"><?php echo $uname ?></h1>
-				<a class="btn profile-edit-btn" href="editProfile.php">Edit Profile</a>
+				<a class=" profile-edit-btn" href="editProfile.php" title="Edit Profile"><i class="bi bi-gear"></i></a>
 
-            <a class="btn profile-add-post-btn"  data-bs-toggle="modal" data-bs-target="#myPost">Add Post</a>
+            <a class=" btn btn-primary"  data-bs-toggle="modal" data-bs-target="#myPost">Add Post</a>
 
             <!-- The Modal -->
 <div class="modal fade" id="myPost">

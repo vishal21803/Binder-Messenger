@@ -10,7 +10,7 @@ include("header.php");
 <main>
 
 
-<div class="edit-container">
+<div class="">
 
 <?php @session_start();
 $uname=$_SESSION["uname"];
@@ -33,13 +33,14 @@ while($row=mysqli_fetch_array($info)){
 <div class="header">
 
 
-<img src="<?php echo("uploads/$dp");?>" alt="" />
-<div>
+<img src="<?php echo("uploads/$dp");?>" alt=""  />
+
 <h3><?php echo("$uname");?></h3>
 <!-- Button to Open the Modal -->
 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal">
   Change Profile Picture
 </button>
+</div>
 <!-- DP Editor Modal -->
 <div class="modal fade" id="myModal">
   <div class="modal-dialog modal-xl modal-dialog-centered">
@@ -160,36 +161,26 @@ while($row=mysqli_fetch_array($info)){
   </div>
 </div>
 
+<form method="post" action="updateProfile.php" class="edit-box">
 
-<form method="post" action="updateProfile.php">
-<div class="form-group">
-<label>Name</label>
-<input name="fname" type="text" value="<?php echo("$fullname")?>" >
-</div>
+  <h2 class="edit-title">Edit Profile</h2>
 
+  <label>Name</label>
+  <input name="fname" type="text" class="input-field" placeholder="Enter your name" value="<?php echo($fullname);?>">
 
+  <label>Bio</label>
+  <textarea name="bio" class="input-field textarea-field" placeholder="Write something..."><?php echo($bio);?>"</textarea>
 
+  <label>Website</label>
+  <input name="website" type="text" class="input-field" placeholder="https://yourwebsite.com" value="<?php echo($website);?>">
 
-<div class="form-group">
-<label>Bio</label>
-<textarea name="bio" ><?php echo("$bio")?></textarea>
-</div>
+  <label>Age</label>
+  <input name="age" type="number" class="input-field" placeholder="Your age" value="<?php echo($age); ?>">
 
+  <button class="save-btn">Save Changes</button>
 
-<div class="form-group">
-<label>Website</label>
-<input name="website" type="text" value="<?php echo("$website")?>" />
-</div>
-
-
-<div class="form-group">
-<label>Age</label>
-<input name="age" type="text" value="<?php echo("$age")?>"/>
-</div>
-
-
-<button class="save-btn">Save Changes</button>
 </form>
+
 
 
 </div>

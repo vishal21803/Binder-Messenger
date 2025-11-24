@@ -183,13 +183,14 @@ $read = $row['unread_count'];
     <div class="input-area">
       
         <button id="emojiBtn" title="Emoji">😀</button>
-<button id="gifBtn">＋</button>
-<button id="stickerBtn" class="icon-btn">🧩</button>
+<button id="gifBtn" title="send gif"><i class="bi bi-collection-play"></i></button>
+<button id="stickerBtn" title="send stickers" class="icon-btn"><i class="bi bi-emoji-wink
+"></i></button>
 
 
       <input type="text" placeholder="Type a message..." id="msgInput" />
       <button id="sendBtn">➤</button>
-         <button id="fileBtn">📎</button>
+         <button id="fileBtn" title="send files"><i class="bi bi-folder"></i></button>
 <input type="file" id="fileInput" style="display:none;" accept="image/*,application/pdf,video/*,audio/*">
 
         <div id="emojiPicker" class="emoji-picker"></div>

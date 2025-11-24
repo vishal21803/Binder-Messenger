@@ -10,6 +10,8 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+          <link rel="icon" type="image/png" href="img/logo.png">
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emoji-mart@latest/css/emoji-mart.css" />
 <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" />
 
@@ -28,7 +30,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     <!-- Logo + Brand -->
     <a class="navbar-brand d-flex align-items-center brand-glow" href="#">
       <img src="img/logo.png" alt="logo" class="nav-logo">
-      <span class="ms-2 fw-bold">Binder</span>
+      <span class=" fw-bold">Binder</span>
     </a>
 
     <!-- Toggler -->

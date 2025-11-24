@@ -9,7 +9,7 @@ $bio=$_REQUEST["bio"];
 
 mysqli_query($con,"update user_info set ufull='$fname',uage='$age',uwebsite='$website',ubio='$bio' where uname='$uname' ");
 
-header("location:editProfile.php?status=1");
+header("location:userProfile.php?status=1");
 
 
 
