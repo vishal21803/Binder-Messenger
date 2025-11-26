@@ -17,6 +17,7 @@ if(isset($_POST["editedDP"])){
     file_put_contents("uploads/".$filename, $data);
 
     mysqli_query($con, "update user_info set ufile='$filename' where uname='$uname'");
+    
 
     echo "DP Uploaded Successfully: ".$filename;
 } else {

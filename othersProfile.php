@@ -154,6 +154,9 @@ if (mysqli_num_rows($check) > 0) {
 				<p><span class="profile-real-name"><?php echo $fullname ?></span>
                  <br>
                   <?php echo $bio ?>
+                  <br>
+                  <span  style="font-size:18px;"><a id="profilelink" style="text-decoration: none" href="<?php echo $website ?>"><?php echo $website ?></a></span>
+
                 </p>
 			</div>
 

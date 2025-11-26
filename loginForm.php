@@ -194,11 +194,49 @@ body{
     }
     .authx-title{ font-size:24px; }
 }
+.authx-alert {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff4d4d;
+  color: white;
+  padding: 12px 22px;
+  border-radius: 10px;
+  font-size: 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  z-index: 99999;
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translate(-50%, -10px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
 
 
   </style>
 </head>
 <body>
+   <?php
+if(isset($_REQUEST["regmsg"])) {
+    $msg = "";
+    if($_REQUEST["regmsg"] == 1) $msg = "Invalid Username";
+    if($_REQUEST["regmsg"] == 2) $msg = "Invalid Password";
+
+    echo "<script>
+            document.addEventListener('DOMContentLoaded', function() {
+                let alertBox = document.getElementById('authx-alert');
+                alertBox.innerHTML = '$msg';
+                alertBox.style.display = 'block';
+                setTimeout(() => { alertBox.style.display = 'none'; }, 4000);
+            });
+          </script>";
+}
+?>
+
+<div id="authx-alert" class="authx-alert"></div>
 
   <div class="authx-shell" id="authx-container">
 

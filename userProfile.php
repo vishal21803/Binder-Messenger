@@ -20,7 +20,6 @@ $dp       = $row["ufile"];
 $website  = $row["uwebsite"];
 $bio      = $row["ubio"];
 $age      = $row["uage"];
-
 // Following Count
 $rscheck = mysqli_query($con,"SELECT * FROM request_info r,user_info u 
                               WHERE r.rstatus='accepted' 
@@ -93,10 +92,10 @@ while($row5=mysqli_fetch_array($rsCount)){
     </div>
 
     <!-- Tags -->
-    <div class="field">
+    <!-- <div class="field">
       <label>Tags</label>
       <input type="text" id="tags" name="tags" placeholder="#travel #friends #sunset" />
-    </div>
+    </div> -->
 
     <!-- Location -->
     <div class="field">
@@ -183,7 +182,9 @@ while($row5=mysqli_fetch_array($rsCount)){
 			<div class="profile-bio">
 				<p><span class="profile-real-name"><?php echo $fullname ?></span> 
         <br>
-        <?php echo $bio ?></p>
+        <?php echo $bio ?>
+        <br>
+        <span  style="font-size:18px;"><a id="profilelink" style="text-decoration: none" href="<?php echo $website ?>"><?php echo $website ?></a></span></p>
 			</div>
 
 		</div>
@@ -237,6 +238,8 @@ if(isset($_SESSION["uname"]) && isset($_SESSION["uid"]) ){
       $location=$row2["location"];
       $fname=$row2["uname"];
       $pimg=$row2["ufile"];
+      $location = $row2["location"];
+
       $ptime= timeAgo( $row2["post_time"]);
       $pid=$row2["pid"];
 
@@ -289,13 +292,33 @@ echo "
         <div class='post-card'>
 
             <!-- Post Header -->
-            <div class='post-user'>
-                <img src='uploads/$pimg' class='user-img'>
-                <div>
-                    <h4 class='user-name'>$fname</h4>
-                    <p class='post-time'>$ptime</p>
-                </div>
-            </div>
+         <div class='post-user'>
+    <img src='uploads/$pimg' class='user-img'>
+
+    <div>
+        <h4 class='user-name'>$fname</h4>
+        <p class='post-time fade-switch' id='postTime_$pid'>$ptime</p>
+
+<p class='post-time fade-switch fade-hidden' id='postLocation_$pid'>$location</p>
+
+    </div>
+
+    <!-- Delete / More Options -->
+    <div class='post-options ms-auto'>
+        <a class='options-btn' data-bs-toggle='dropdown'>
+            <i class='bi bi-three-dots-vertical'></i>
+        </a>
+
+        <ul class='dropdown-menu dropdown-menu-end'>
+            <li>
+                <a class='dropdown-item text-danger delete-post-btn' data-post='$pid'>
+                    <i class='bi bi-trash'></i> Delete Post
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
 
             <!-- Post Image -->
             <div class='post-image'>
@@ -338,7 +361,9 @@ echo "
 </div>
 </div>
 </div>
+
 ";
+
 
 
      }
@@ -468,6 +493,7 @@ const postForm = document.getElementById("postform");
 // CANVAS ELEMENTS
 const finalCanvas = document.getElementById("finalCanvas");
 const editedImageInput = document.getElementById("editedImage");
+  const hint = document.querySelector(".upload-hint");
 
 // === CLICK TO OPEN FILE PICKER ===
 uploadBox.addEventListener("click", () => {
@@ -481,6 +507,8 @@ fileInput.addEventListener("change", () => {
         reader.onload = function (e) {
             previewImg.src = e.target.result;
             previewImg.style.display = "block";
+                hint.style.display = "none";
+
         };
         reader.readAsDataURL(fileInput.files[0]);
     }
@@ -549,6 +577,48 @@ function toggleComments(postId){
         box.style.display = "none";
     }
 }
+
+$(document).on("click", ".delete-post-btn", function () {
+    let pid = $(this).data("post");
+
+    if(confirm("Are you sure you want to delete this post?")) {
+
+        $.post("deletePost.php", { pid: pid }, function(response){
+            if(response == "DELETED"){
+                alert("Post deleted");
+                location.reload();
+            }
+        });
+
+    }
+});
+
+document.addEventListener("DOMContentLoaded", function(){
+    document.querySelectorAll(".modal").forEach(modal => {
+
+        modal.addEventListener("shown.bs.modal", function () {
+
+            let pid = this.id.split("_")[1]; // extract post id
+            startPostTimeToggle(pid);        // now start toggle
+        });
+    });
+});
+
+function startPostTimeToggle(pid) {
+    let timeEl = document.getElementById("postTime_" + pid);
+    let locEl  = document.getElementById("postLocation_" + pid);
+
+    if (!timeEl || !locEl) return;
+
+    // Start with location hidden
+    locEl.classList.add("fade-hidden");
+
+    setInterval(() => {
+        timeEl.classList.toggle("fade-hidden");
+        locEl.classList.toggle("fade-hidden");
+    }, 2000);
+}
+
 
 
 </script>
