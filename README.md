@@ -146,13 +146,4 @@ If you'd like to improve UI/UX, animations, or performance — feel free to cont
 This project is **free to use and modify**.
 You may use it as a learning project, portfolio project, or extend it into a full app.
 
----
 
-If you want, I can also create:
-
-✅ A **short version** (minimal README)
-✅ A **fancy version** (with badges, visuals, emojis)
-✅ A **professional enterprise-style version**
-✅ A **README + Screenshots section**
-
-Just tell me!
