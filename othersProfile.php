@@ -265,7 +265,9 @@ echo "
                 <img src='uploads/$pimg' class='user-img'>
                 <div>
                     <h4 class='user-name'>$fname</h4>
-                    <p class='post-time'>$ptime</p>
+                     <p class='post-time fade-switch' id='postTime_$pid'>$ptime</p>
+
+<p class='post-time fade-switch fade-hidden' id='postLocation_$pid'>$location</p>
                 </div>
             </div>
 
@@ -524,6 +526,31 @@ function toggleComments(postId){
     }
 }
 
+document.addEventListener("DOMContentLoaded", function(){
+    document.querySelectorAll(".modal").forEach(modal => {
+
+        modal.addEventListener("shown.bs.modal", function () {
+
+            let pid = this.id.split("_")[1]; // extract post id
+            startPostTimeToggle(pid);        // now start toggle
+        });
+    });
+});
+
+function startPostTimeToggle(pid) {
+    let timeEl = document.getElementById("postTime_" + pid);
+    let locEl  = document.getElementById("postLocation_" + pid);
+
+    if (!timeEl || !locEl) return;
+
+    // Start with location hidden
+    locEl.classList.add("fade-hidden");
+
+    setInterval(() => {
+        timeEl.classList.toggle("fade-hidden");
+        locEl.classList.toggle("fade-hidden");
+    }, 2000);
+}
 </script>
 
 <?php include("footer.php"); } else { include("index.php"); } ?>

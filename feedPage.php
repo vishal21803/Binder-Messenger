@@ -80,7 +80,7 @@ if ($followingCount == 0) {
    
 
     <!-- MAIN FEED -->
-    <div class='feed-wrapper'>
+    <div class='feed-wrapper' >
 
         <!-- Example Post -->
         <div class='post-card'>
@@ -90,7 +90,10 @@ if ($followingCount == 0) {
                 <img src='uploads/$pimg' class='user-img'>
                 <div>
                     <h4 class='user-name'>$fname</h4>
-                    <p class='post-time'>$ptime</p>
+                   <p class='post-time fade-switch' id='postTime_$pid'>$ptime</p>
+
+<p class='post-time fade-switch fade-hidden' id='postLocation_$pid'>$location</p>
+
                 </div>
             </div>
 
@@ -266,6 +269,31 @@ function toggleComments(postId){
         // Hide comment section
         box.style.display = "none";
     }
+}
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Find all posts
+    document.querySelectorAll("[id^='postTime_']").forEach(el => {
+        const pid = el.id.split("_")[1];
+        startPostTimeToggle(pid);
+    });
+});
+
+
+function startPostTimeToggle(pid) {
+    let timeEl = document.getElementById("postTime_" + pid);
+    let locEl  = document.getElementById("postLocation_" + pid);
+
+    if (!timeEl || !locEl) return;
+
+    // Start with location hidden
+    locEl.classList.add("fade-hidden");
+
+    setInterval(() => {
+        timeEl.classList.toggle("fade-hidden");
+        locEl.classList.toggle("fade-hidden");
+    }, 2000);
 }
 
 </script>
