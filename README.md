@@ -61,26 +61,6 @@ Built with **PHP, MySQL, JavaScript (AJAX/Fetch), Bootstrap**, and a custom UI/U
 
 ---
 
-## 📂 **Project Structure (Common Layout)**
-
-```
-/Binder
-│── index.php
-│── home.php
-│── feed.php
-│── like.php
-│── add_comment.php
-│── get_comment.php
-│── insertRequest.php
-│── unfollow.php
-│── reqBack.php
-│── footer.php
-│── uploads/
-│── assets/
-│── css/
-│── js/
-│── db.php
-```
 
 ---
 
